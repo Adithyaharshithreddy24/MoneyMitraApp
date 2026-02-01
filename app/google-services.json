@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1014405664096",
+    "project_id": "money-mitra-1",
+    "storage_bucket": "money-mitra-1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014405664096:android:63e22d24d3fec7d6ac6205",
+        "android_client_info": {
+          "package_name": "com.example.moneymitra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1014405664096-m6po2q3015co2gtvset6kfegv24kr8g1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moneymitra",
+            "certificate_hash": "023799456c067acfa206414e6fa7bf0331fee210"
+          }
+        },
+        {
+          "client_id": "1014405664096-41j5t41elqpg6v66c6tppgucvfl859hp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc1VJ4KcGaL0cv-Kk4sAEeUC-lNTs8uWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1014405664096-41j5t41elqpg6v66c6tppgucvfl859hp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
