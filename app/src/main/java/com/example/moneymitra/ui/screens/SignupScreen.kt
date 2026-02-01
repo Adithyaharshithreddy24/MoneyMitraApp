@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -20,15 +21,17 @@ import androidx.compose.ui.unit.sp
 import com.example.moneymitra.R
 
 @Composable
-fun LoginScreen(
-    onSignInClick: (String, String) -> Unit,
+fun SignupScreen(
     onGoogleClick: () -> Unit,
-    onForgotPassword: (String) -> Unit,
-    onSignUpClick: () -> Unit
+    onSignupClick: (String, String, String) -> Unit,
+    onSignInClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -77,7 +80,8 @@ fun LoginScreen(
 
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+            ,
             contentAlignment = Alignment.BottomEnd
         ) {
             Card(
@@ -102,6 +106,8 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(12.dp))
 
+
+                    /* ---------- EMAIL ---------- */
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -161,52 +167,71 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(10.dp))
 
-                    Row(
+                    /* ---------- CONFIRM PASSWORD ---------- */
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        label = { Text("Confirm Password") },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.padlock),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                        modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                painter = painterResource(
+                                    if (confirmPasswordVisible) R.drawable.eye else R.drawable.hidden
+                                ),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(20.dp).clickable {
+                                    confirmPasswordVisible = !confirmPasswordVisible
+                                }
+                            )
+                        },
+                        visualTransformation =
+                            if (confirmPasswordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-
-                        Text(
-                            "Forgot Password?",
-                            color = Color(0xFF2563EB),
-                            fontSize = 13.sp,
-                            modifier = Modifier.clickable { onForgotPassword(email) }
-                        )
-                        Spacer(Modifier.weight(1f))
-                    }
+                        shape = RoundedCornerShape(14.dp)
+                    )
 
                     Spacer(Modifier.height(18.dp))
 
+
+                    /* ---------- SIGN UP BUTTON (GRADIENT) ---------- */
                     Button(
                         onClick = {
-                            onSignInClick(email, password)
+                            onSignupClick(email, password, confirmPassword)
                         },
                         modifier = Modifier
                             .width(200.dp)
                             .height(52.dp),
-                        shape = RoundedCornerShape(26.dp),
+                        shape = RoundedCornerShape(30.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent
                         ),
-                        contentPadding = PaddingValues(0.dp) // IMPORTANT
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(
                                     brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color(0xFF000000), // start
-                                            Color(0xFF282B8C)  // end
+                                        listOf(
+                                            Color(0xFF000000),
+                                            Color(0xFF282B8C)
                                         )
                                     ),
-                                    shape = RoundedCornerShape(26.dp)
+                                    shape = RoundedCornerShape(30.dp)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Sign in",
+                                text = "Sign up",
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
@@ -214,41 +239,33 @@ fun LoginScreen(
                         }
                     }
 
-
                     Spacer(Modifier.height(16.dp))
 
                     Row {
-                        Text("Don't have an account? ")
+                        Text("Have an account? ")
                         Text(
-                            "Sign up here",
+                            "Sign in here",
                             color = Color(0xFF2563EB),
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { onSignUpClick() }
+                            modifier = Modifier.clickable { onSignInClick() }
                         )
                     }
+
                     Spacer(Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Divider(
-                            modifier = Modifier.weight(1f),
-                            thickness = 1.dp
-                        )
-
+                        Divider(Modifier.weight(1f))
                         Text(
-                            text = "OR",
+                            "or",
                             modifier = Modifier.padding(horizontal = 8.dp),
                             fontSize = 12.sp,
                             color = Color.Gray
                         )
-
-                        Divider(
-                            modifier = Modifier.weight(1f),
-                            thickness = 1.dp
-                        )
+                        Divider(Modifier.weight(1f))
                     }
-                    Spacer(Modifier.height(12.dp))
+
                     Spacer(Modifier.height(12.dp))
                     Card(
                         modifier = Modifier
@@ -282,8 +299,7 @@ fun LoginScreen(
                     }
                     Spacer(Modifier.height(12.dp))
                 }
-
-                Spacer(Modifier.height(40.dp))
+                Spacer(Modifier.height(12.dp))
             }
         }
     }
