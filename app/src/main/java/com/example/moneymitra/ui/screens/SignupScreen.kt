@@ -60,7 +60,7 @@ fun SignupScreen(
             ) {
                 Spacer(Modifier.height(40.dp))
                 Text(
-                    text = "Welcome Back!",
+                    text = "Welcome!",
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
