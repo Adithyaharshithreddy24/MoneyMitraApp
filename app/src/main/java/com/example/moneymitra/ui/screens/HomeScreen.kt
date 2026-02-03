@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     onSendMail: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onEditProfile:()-> Unit
+
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -28,6 +30,9 @@ fun HomeScreen(
 
         OutlinedButton(onClick = onLogout) {
             Text("Logout")
+        }
+        OutlinedButton(onClick = onEditProfile) {
+            Text("Edit Profile")
         }
     }
 }

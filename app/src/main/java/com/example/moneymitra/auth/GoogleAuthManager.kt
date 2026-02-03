@@ -6,24 +6,19 @@ import android.widget.Toast
 import com.google.android.gms.auth.api.signin.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
 
 class GoogleAuthManager(
-    private val activity: Activity,
-    private val webClientId: String
+    activity: Activity,
+    webClientId: String
 ) {
 
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
 
     val googleSignInClient: GoogleSignInClient by lazy {
-        val gso = GoogleSignInOptions.Builder(
-            GoogleSignInOptions.DEFAULT_SIGN_IN
-        )
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
             .requestEmail()
             .build()
-
         GoogleSignIn.getClient(activity, gso)
     }
 
@@ -40,33 +35,18 @@ class GoogleAuthManager(
                 GoogleAuthProvider.getCredential(account.idToken, null)
 
             auth.signInWithCredential(credential)
-                .addOnSuccessListener {
-                    val user = auth.currentUser ?: return@addOnSuccessListener
-
-                    db.collection("users")
-                        .document(user.uid)
-                        .set(
-                            mapOf(
-                                "uid" to user.uid,
-                                "name" to user.displayName,
-                                "email" to user.email
-                            )
-                        )
-
-                    onSuccess()
-                }
+                .addOnSuccessListener { onSuccess() }
                 .addOnFailureListener {
                     Toast.makeText(
-                        activity,
-                        "Login failed",
+                        googleSignInClient.applicationContext,
+                        "Google login failed",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
         } catch (e: Exception) {
             Toast.makeText(
-                activity,
-                "Google Sign-In failed",
+                googleSignInClient.applicationContext,
+                "Google Sign-In error",
                 Toast.LENGTH_SHORT
             ).show()
         }

@@ -33,19 +33,22 @@ android {
 
 dependencies {
 
-    // Firebase
+    /* ---------------- FIREBASE (BOM) ---------------- */
     implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+
     implementation("com.google.firebase:firebase-auth")
-
-    // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:21.1.0")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
-    // Compose
+    /* ---------------- GOOGLE SIGN-IN ---------------- */
+    implementation("com.google.android.gms:play-services-auth:21.1.0")
+
+    /* ---------------- COMPOSE ---------------- */
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.9.0")
-
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    /* ---------------- IMAGE LOADING ---------------- */
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

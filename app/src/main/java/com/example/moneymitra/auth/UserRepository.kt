@@ -2,6 +2,7 @@ package com.example.moneymitra.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 object UserRepository {
 
@@ -12,36 +13,50 @@ object UserRepository {
         onError: (String) -> Unit
     ) {
         val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            onError("User not logged in")
-            return
-        }
+            ?: return onError("User not logged in")
 
-        val userRef = db.collection("users").document(user.uid)
+        val ref = db.collection("users").document(user.uid)
 
-        userRef.get()
+        ref.get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    // User already exists
                     onSuccess()
                 } else {
-                    // Create user document
-                    val data = hashMapOf(
-                        "uid" to user.uid,
-                        "email" to user.email,
-                        "provider" to "email",
-                        "createdAt" to System.currentTimeMillis()
-                    )
-
-                    userRef.set(data)
-                        .addOnSuccessListener { onSuccess() }
-                        .addOnFailureListener {
-                            onError(it.message ?: "Firestore write failed")
-                        }
+                    ref.set(
+                        mapOf(
+                            "uid" to user.uid,
+                            "email" to user.email,
+                            "profileCompleted" to false,
+                            "createdAt" to System.currentTimeMillis()
+                        ),
+                        SetOptions.merge()
+                    ).addOnSuccessListener {
+                        onSuccess()
+                    }.addOnFailureListener {
+                        onError(it.message ?: "User creation failed")
+                    }
                 }
             }
             .addOnFailureListener {
                 onError(it.message ?: "Firestore read failed")
+            }
+    }
+
+    fun isProfileCompleted(
+        onResult: (Boolean) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val user = FirebaseAuth.getInstance().currentUser
+            ?: return onError("User not logged in")
+
+        db.collection("users")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener {
+                onResult(it.getBoolean("profileCompleted") ?: false)
+            }
+            .addOnFailureListener {
+                onError(it.message ?: "Profile fetch failed")
             }
     }
 }

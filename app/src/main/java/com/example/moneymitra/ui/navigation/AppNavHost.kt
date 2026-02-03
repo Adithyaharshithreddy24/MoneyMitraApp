@@ -7,14 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.navigation.compose.*
 import com.example.moneymitra.R
-import com.example.moneymitra.auth.EmailAuthManager
-import com.example.moneymitra.auth.GoogleAuthManager
-import com.example.moneymitra.auth.UserRepository
-import com.example.moneymitra.auth.sendPasswordReset
-import com.example.moneymitra.ui.screens.HomeScreen
-import com.example.moneymitra.ui.screens.LoginScreen
-import com.example.moneymitra.ui.screens.SignupScreen
-import com.example.moneymitra.utils.sendMail
+import com.example.moneymitra.auth.*
+import com.example.moneymitra.ui.screens.*
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -22,139 +16,157 @@ fun AppNavHost(activity: Activity) {
 
     val navController = rememberNavController()
 
-    val googleAuthManager = GoogleAuthManager(
+    val googleAuth = GoogleAuthManager(
         activity,
         activity.getString(R.string.default_web_client_id)
     )
-    val emailAuthManager = EmailAuthManager()
+    val emailAuth = EmailAuthManager()
 
-    var isLoggedIn by remember {
-        mutableStateOf(googleAuthManager.auth.currentUser != null)
-    }
-
-    // 🔐 TEMP STORAGE FOR SIGNUP (UNTIL OTP VERIFIED)
-    var signupEmail by remember { mutableStateOf("") }
-    var signupPassword by remember { mutableStateOf("") }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            googleAuthManager.handleSignInResult(result.data) {
-                isLoggedIn = true
+    /* ---------- GOOGLE SIGN-IN ---------- */
+    val googleLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                googleAuth.handleSignInResult(result.data) {
+                    UserRepository.createUserIfNotExists(
+                        onSuccess = {
+                            navController.navigate("authCheck") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        onError = {
+                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
             }
         }
+
+    /* ---------- START DESTINATION ---------- */
+    val startDestination = remember {
+        if (FirebaseAuth.getInstance().currentUser != null)
+            "authCheck"
+        else
+            "login"
     }
 
-    /* ====================== HOME ====================== */
-    if (isLoggedIn) {
-        HomeScreen(
-            onSendMail = { sendMail(activity) },
-            onLogout = {
-                googleAuthManager.auth.signOut()
-                googleAuthManager.googleSignInClient.signOut()
-                isLoggedIn = false
-            }
-        )
-    } else {
+    NavHost(navController, startDestination = startDestination) {
 
-        /* ====================== AUTH FLOW ====================== */
-        NavHost(
-            navController = navController,
-            startDestination = "login"
-        ) {
+        /* ======================================================
+           AUTH CHECK (VERY IMPORTANT)
+           ====================================================== */
+        composable("authCheck") {
+            val user = FirebaseAuth.getInstance().currentUser
 
-            /* ---------------- LOGIN ---------------- */
-            composable("login") {
-                LoginScreen(
-                    onSignInClick = { email, password ->
-                        emailAuthManager.signInWithEmail(
-                            email,
-                            password,
-                            onSuccess = {
-
-                                val user = FirebaseAuth.getInstance().currentUser
-
-                                if (user != null && user.isEmailVerified) {
-
-                                    // ✅ WRITE TO FIRESTORE HERE
-                                    UserRepository.createUserIfNotExists(
-                                        onSuccess = {
-                                            isLoggedIn = true
-                                        },
-                                        onError = { msg ->
-                                            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
-                                        }
-                                    )
-
-                                } else {
-                                    FirebaseAuth.getInstance().signOut()
-                                    Toast.makeText(
-                                        activity,
-                                        "Please verify your email before logging in",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            },
-                            onError = { message ->
-                                Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+            LaunchedEffect(Unit) {
+                if (user == null) {
+                    navController.navigate("login") {
+                        popUpTo("authCheck") { inclusive = true }
+                    }
+                } else {
+                    UserRepository.isProfileCompleted(
+                        onResult = { completed ->
+                            navController.navigate(
+                                if (completed) "home" else "editProfile"
+                            ) {
+                                popUpTo("authCheck") { inclusive = true }
                             }
-                        )
-                    }
-                    ,
-                    onGoogleClick = {
-                        launcher.launch(
-                            googleAuthManager.googleSignInClient.signInIntent
-                        )
-                    },
-                    onForgotPassword = { email ->
-                        sendPasswordReset(activity, email)
-                    },
-                    onSignUpClick = {
-                        navController.navigate("signup")
-                    }
-                )
-            }
-
-            /* ---------------- SIGNUP ---------------- */
-            composable("signup") {
-                SignupScreen(
-                    onGoogleClick = {
-                        launcher.launch(
-                            googleAuthManager.googleSignInClient.signInIntent
-                        )
-                    },
-                    onSignupClick = { email, password, confirmPassword ->
-
-                        if (password != confirmPassword) {
-                            Toast.makeText(activity, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                            return@SignupScreen
+                        },
+                        onError = {
+                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                            navController.navigate("login") {
+                                popUpTo("authCheck") { inclusive = true }
+                            }
                         }
-
-                        emailAuthManager.createUserWithEmail(
-                            email = email,
-                            password = password,
-                            onVerificationSent = {
-                                Toast.makeText(
-                                    activity,
-                                    "Verification email sent. Please verify and login.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-
-                                navController.popBackStack("login", inclusive = false)
-                            },
-                            onError = { message ->
-                                Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    },
-
-                            onSignInClick = {
-                        navController.popBackStack()
-                    }
-                )
+                    )
+                }
             }
+        }
 
+        /* ---------------- LOGIN ---------------- */
+        composable("login") {
+            LoginScreen(
+                onSignInClick = { email, password ->
+                    emailAuth.signInWithEmail(
+                        email, password,
+                        onSuccess = {
+                            navController.navigate("authCheck") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        onError = {
+                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                },
+                onGoogleClick = {
+                    googleLauncher.launch(
+                        googleAuth.googleSignInClient.signInIntent
+                    )
+                },
+                onForgotPassword = {},
+                onSignUpClick = {
+                    navController.navigate("signup")
+                }
+            )
+        }
+
+        /* ---------------- SIGNUP ---------------- */
+        composable("signup") {
+            SignupScreen(
+                onGoogleClick = {
+                    googleLauncher.launch(
+                        googleAuth.googleSignInClient.signInIntent
+                    )
+                },
+                onSignupClick = { e, p, _ ->
+                    emailAuth.createUserWithEmail(
+                        e, p,
+                        onVerificationSent = {
+                            Toast.makeText(
+                                activity,
+                                "Verify email and login",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            navController.popBackStack()
+                        },
+                        onError = {
+                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                },
+                onSignInClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        /* ---------------- EDIT PROFILE ---------------- */
+        composable("editProfile") {
+            EditProfileScreen {
+                navController.navigate("home") {
+                    popUpTo("editProfile") { inclusive = true }
+                }
+            }
+        }
+
+        /* ---------------- HOME ---------------- */
+        composable("home") {
+            HomeScreen(
+                onSendMail = {},
+                onEditProfile = {
+                    navController.navigate("editProfile") // ✅ FIXED
+                },
+                onLogout = {
+                    FirebaseAuth.getInstance().signOut()
+                    googleAuth.googleSignInClient.signOut()
+
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
