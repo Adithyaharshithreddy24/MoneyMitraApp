@@ -19,12 +19,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("You are logged in ✅", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(onClick = onSendMail) {
-            Text("Send Mail")
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

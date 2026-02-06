@@ -143,13 +143,19 @@ fun AppNavHost(activity: Activity) {
         }
 
         /* ---------------- EDIT PROFILE ---------------- */
-        composable("editProfile") {
-            EditProfileScreen {
-                navController.navigate("home") {
-                    popUpTo("editProfile") { inclusive = true }
+        composable(route = "editProfile") {
+            EditProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onProfileSaved = {
+                    navController.navigate("home") {
+                        popUpTo("editProfile") { inclusive = true }
+                    }
                 }
-            }
+            )
         }
+
 
         /* ---------------- HOME ---------------- */
         composable("home") {
