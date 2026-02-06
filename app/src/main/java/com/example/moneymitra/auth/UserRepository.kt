@@ -1,8 +1,10 @@
 package com.example.moneymitra.auth
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Source
 
 object UserRepository {
 
@@ -59,4 +61,25 @@ object UserRepository {
                 onError(it.message ?: "Profile fetch failed")
             }
     }
+
+    fun isUsernameAvailable(
+        username: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        val normalized = username.trim().lowercase()
+
+        db.collection("users")
+            .whereEqualTo("username", normalized)
+            .get(Source.SERVER)
+            .addOnSuccessListener { snapshot ->
+                Log.d("USERNAME_CHECK", "Docs found = ${snapshot.size()}")
+                onResult(snapshot.isEmpty)
+            }
+            .addOnFailureListener { e ->
+                Log.e("USERNAME_CHECK", "FAILED", e)
+                // ⛔ DO NOT MARK AS USED ON FAILURE
+                onResult(true)
+            }
+    }
+
 }

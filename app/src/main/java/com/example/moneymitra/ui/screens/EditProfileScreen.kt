@@ -1,6 +1,5 @@
 package com.example.moneymitra.ui.screens
 
-import android.app.DatePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,13 +20,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.moneymitra.R
 import com.example.moneymitra.auth.ProfileRepository
+import com.example.moneymitra.auth.UserRepository
 import com.example.moneymitra.ui.components.DobPickerField
 import com.example.moneymitra.ui.components.GenderDropdownField
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.moneymitra.R
-import java.util.Calendar
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +40,12 @@ fun EditProfileScreen(
     val db = FirebaseFirestore.getInstance()
 
     var username by remember { mutableStateOf("") }
+    var originalUsername by remember { mutableStateOf("") }
+
+    var checkingUsername by remember { mutableStateOf(false) }
+    var isUsernameValid by remember { mutableStateOf(false) }
+    var usernameError by remember { mutableStateOf<String?>(null) }
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf(user.email ?: "") }
@@ -48,19 +54,45 @@ fun EditProfileScreen(
     var gender by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
-    /* ---------- LOAD DATA ---------- */
+    /* ---------- LOAD USER DATA ---------- */
     LaunchedEffect(Unit) {
-        db.collection("users")
-            .document(user.uid)
-            .get()
+        db.collection("users").document(user.uid).get()
             .addOnSuccessListener {
-                username = it.getString("username") ?: ""
+                val fetchedUsername = it.getString("username") ?: ""
+                username = fetchedUsername
+                originalUsername = fetchedUsername
+
                 firstName = it.getString("firstName") ?: ""
                 lastName = it.getString("lastName") ?: ""
                 phone = it.getString("phone") ?: ""
                 dob = it.getString("dob") ?: ""
                 gender = it.getString("gender") ?: ""
+
+                isUsernameValid = true
             }
+    }
+
+    /* ---------- USERNAME VALIDATION (ONLY PLACE FIRESTORE IS CALLED) ---------- */
+    LaunchedEffect(username) {
+        usernameError = null
+        isUsernameValid = false
+
+        if (username.length < 4) return@LaunchedEffect
+
+        // allow unchanged username
+        if (username == originalUsername) {
+            isUsernameValid = true
+            return@LaunchedEffect
+        }
+
+        checkingUsername = true
+        delay(500) // debounce
+
+        UserRepository.isUsernameAvailable(username) { available ->
+            checkingUsername = false
+            isUsernameValid = available
+            usernameError = if (!available) "Username already used" else null
+        }
     }
 
     Column(
@@ -72,132 +104,81 @@ fun EditProfileScreen(
     ) {
 
         /* ---------- HEADER ---------- */
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
-            Text(
-                text = "Edit Profile",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Edit Profile", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
 
         Spacer(Modifier.height(24.dp))
 
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            Box {
-                Image(
-                    painter = painterResource(id = R.drawable.profile),
-                    contentDescription = "Profile Image",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                )
+        /* ---------- PROFILE IMAGE ---------- */
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(id = R.drawable.profile),
+                contentDescription = "Profile",
+                modifier = Modifier.size(120.dp).clip(CircleShape)
+            )
+        }
 
-                // Optional edit icon (UI only)
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(36.dp)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.edit),
-                        contentDescription = "Edit",
-                        modifier = Modifier.size(18.dp),
-                        tint = Color.Gray
-                    )
+        Spacer(Modifier.height(20.dp))
+
+        /* ---------- USERNAME ---------- */
+        OutlinedTextField(
+            value = username,
+            onValueChange = {
+                username = it.trim().lowercase()
+            },
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = usernameError != null,
+            supportingText = {
+                when {
+                    checkingUsername -> Text("Checking availability...")
+                    usernameError != null ->
+                        Text(usernameError!!, color = Color.Red)
+                    isUsernameValid && username != originalUsername ->
+                        Text("Username available", color = Color(0xFF2E7D32))
                 }
             }
-        }
-
-        /* ---------- FIELDS ---------- */
-        OutlinedTextField(
-            username,
-            { username = it },
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            firstName,
-            { firstName = it },
-            label = { Text("First Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            lastName,
-            { lastName = it },
-            label = { Text("Last Name")},
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            email,
-            {},
-            enabled = false,
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
-            phone,
-            { phone = it },
-            label = { Text("Phone") },
-            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(10.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            DobPickerField(
-                dob = dob,
-                onDateSelected = { dob = it },
-                modifier = Modifier.width(200.dp)
-            )
 
+        /* ---------- OTHER FIELDS ---------- */
+        OutlinedTextField(firstName, { firstName = it }, label = { Text("First Name") }, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(lastName, { lastName = it }, label = { Text("Last Name") }, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(email, {}, enabled = false, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(phone, { phone = it }, label = { Text("Phone") }, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.height(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            DobPickerField(dob, { dob = it }, Modifier.width(200.dp))
             Spacer(Modifier.width(12.dp))
-
-            GenderDropdownField(
-                gender = gender,
-                onGenderSelected = { gender = it },
-                modifier = Modifier.fillMaxWidth()
-            )
+            GenderDropdownField(gender, { gender = it }, Modifier.fillMaxWidth())
         }
+
         Spacer(Modifier.height(30.dp))
 
-        /* ---------- SAVE ---------- */
+        /* ---------- SAVE BUTTON ---------- */
         Button(
             onClick = {
-                if (username.isBlank() || firstName.isBlank()) {
-                    Toast.makeText(context, "Required fields missing", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-
                 loading = true
-
-                val data = mapOf(
-                    "username" to username,
-                    "firstName" to firstName,
-                    "lastName" to lastName,
-                    "phone" to phone,
-                    "dob" to dob,
-                    "gender" to gender,
-                    "profileCompleted" to true
-                )
-
                 ProfileRepository.saveProfile(
                     uid = user.uid,
-                    data = data,
+                    data = mapOf(
+                        "username" to username,
+                        "firstName" to firstName,
+                        "lastName" to lastName,
+                        "phone" to phone,
+                        "dob" to dob,
+                        "gender" to gender,
+                        "profileCompleted" to true
+                    ),
                     onSuccess = {
                         loading = false
                         onProfileSaved()
@@ -208,8 +189,13 @@ fun EditProfileScreen(
                     }
                 )
             },
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            enabled = !loading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            enabled = !loading &&
+                    isUsernameValid &&
+                    username.isNotBlank() &&
+                    firstName.isNotBlank()
         ) {
             Text(if (loading) "Saving..." else "SAVE CHANGES")
         }

@@ -1,9 +1,10 @@
 package com.example.moneymitra.auth
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 
 object ProfileRepository {
+
+    private val db = FirebaseFirestore.getInstance()
 
     fun saveProfile(
         uid: String,
@@ -11,13 +12,10 @@ object ProfileRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        FirebaseFirestore.getInstance()
-            .collection("users")
+        db.collection("users")
             .document(uid)
-            .set(data, SetOptions.merge())
+            .set(data)
             .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener {
-                onError(it.message ?: "Failed to save profile")
-            }
+            .addOnFailureListener { onError(it.message ?: "Failed to save profile") }
     }
 }
