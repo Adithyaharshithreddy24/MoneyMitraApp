@@ -160,19 +160,23 @@ fun AppNavHost(activity: Activity) {
         /* ---------------- HOME ---------------- */
         composable("home") {
             HomeScreen(
-                onSendMail = {},
-                onEditProfile = {
-                    navController.navigate("editProfile") // ✅ FIXED
-                },
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
-                    googleAuth.googleSignInClient.signOut()
-
                     navController.navigate("login") {
                         popUpTo("home") { inclusive = true }
                     }
-                }
+                },
+                onProfileClick = { navController.navigate("editProfile") },
+                onHomeClick={},
+                onGridClick={},
+                onAddClick={},
+                onNotificationClick={},
+                onTransactionClick={},
+                onChitFunds={},
+                onGoals={},
+                onLoans={}
             )
         }
+
     }
 }

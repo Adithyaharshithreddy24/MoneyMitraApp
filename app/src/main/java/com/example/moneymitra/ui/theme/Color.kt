@@ -12,10 +12,3 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 
-
-val gradientcol =  Brush.linearGradient(
-    colors = listOf(
-        Color(0xFF000000),
-        Color(0xFF282B8C)
-    )
-)

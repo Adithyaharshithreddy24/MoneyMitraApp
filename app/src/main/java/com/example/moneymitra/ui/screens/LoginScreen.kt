@@ -18,7 +18,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moneymitra.R
-import com.example.moneymitra.ui.theme.gradientcol
 
 @Composable
 fun LoginScreen(
@@ -34,7 +33,12 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = gradientcol
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF000000),
+                        Color(0xFF282B8C)
+                    )
+                )
             )
     ) {
 
@@ -45,7 +49,12 @@ fun LoginScreen(
                 .height(400.dp)
 
                 .background(
-                    brush = gradientcol
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF000000),
+                            Color(0xFF282B8C)
+                        )
+                    )
                 ),
             contentAlignment = Alignment.TopCenter
         ) {

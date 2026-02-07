@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,7 +79,11 @@ fun EditProfileScreen(
         usernameError = null
         isUsernameValid = false
 
-        if (username.length < 4) return@LaunchedEffect
+        if (username.length < 8) {
+            checkingUsername = false
+            usernameError = "Username must be at least 8 characters"
+            return@LaunchedEffect
+        }
 
         // allow unchanged username
         if (username == originalUsername) {
@@ -191,13 +197,38 @@ fun EditProfileScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(52.dp),
+            shape = RoundedCornerShape(26.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent
+            ),
+            contentPadding = PaddingValues(0.dp),
             enabled = !loading &&
                     isUsernameValid &&
                     username.isNotBlank() &&
                     firstName.isNotBlank()
         ) {
-            Text(if (loading) "Saving..." else "SAVE CHANGES")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xFF000000), // start
+                                Color(0xFF282B8C)  // end
+                            )
+                        ),
+                        shape = RoundedCornerShape(26.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (loading) "Saving..." else "SAVE CHANGES",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
