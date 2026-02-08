@@ -112,9 +112,16 @@ fun EditProfileScreen(
         /* ---------- HEADER ---------- */
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
             }
-            Text("Edit Profile", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Edit Profile",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(Modifier.height(24.dp))

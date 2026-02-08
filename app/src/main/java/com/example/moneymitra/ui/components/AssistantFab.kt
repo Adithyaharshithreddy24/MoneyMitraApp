@@ -42,7 +42,7 @@ fun AssistantFab(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color(0xFF0B1A3A)
+        containerColor = Color(0xFF11123C)
     ) {
         Icon(
             imageVector = Icons.Default.SupportAgent,
@@ -90,7 +90,7 @@ fun AssistantRadialMenu(
             AssistantMenuItem(
                 label = "Loans",
                 icon = Icons.Default.AttachMoney,
-                angle = -80f,
+                angle = -75f,
                 visible = expanded,
                 onClick = onLoans
             )
@@ -140,7 +140,7 @@ fun AssistantMenuItem(
     ) {
         Surface(
             shape = CircleShape,
-            color = Color(0xFF0B1A3A),
+            color = Color(0xFF11123C),
             shadowElevation = 10.dp
         ) {
             Icon(
@@ -156,7 +156,7 @@ fun AssistantMenuItem(
         Text(
             text = label,
             fontSize = 12.sp,
-            color = Color(0xFF0B1A3A)
+            color = Color(0xFF11123C)
         )
     }
 }

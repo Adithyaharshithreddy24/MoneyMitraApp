@@ -15,7 +15,6 @@ import com.example.moneymitra.ui.components.*
 
 @Composable
 fun HomeScreen(
-    onLogout: () -> Unit,
     onProfileClick: () -> Unit,
     onHomeClick: () -> Unit,
     onGridClick: () -> Unit,
@@ -29,23 +28,6 @@ fun HomeScreen(
     var assistantOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
-        /* ---------- LOGOUT (TOP LEFT) ---------- */
-        TextButton(
-            onClick = onLogout,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .zIndex(3f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Logout,
-                contentDescription = "Logout",
-                tint = Color.Red
-            )
-            Spacer(Modifier.width(6.dp))
-            Text("Logout", color = Color.Red)
-        }
 
         /* ---------- PROFILE (TOP RIGHT) ---------- */
         ProfileIcon(

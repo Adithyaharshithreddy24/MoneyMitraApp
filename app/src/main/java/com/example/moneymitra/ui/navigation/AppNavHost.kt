@@ -22,7 +22,7 @@ fun AppNavHost(activity: Activity) {
     )
     val emailAuth = EmailAuthManager()
 
-    /* ---------- GOOGLE SIGN-IN ---------- */
+    /* ---------------- GOOGLE SIGN-IN ---------------- */
     val googleLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -43,7 +43,7 @@ fun AppNavHost(activity: Activity) {
             }
         }
 
-    /* ---------- START DESTINATION ---------- */
+    /* ---------------- START DESTINATION ---------------- */
     val startDestination = remember {
         if (FirebaseAuth.getInstance().currentUser != null)
             "authCheck"
@@ -51,10 +51,13 @@ fun AppNavHost(activity: Activity) {
             "login"
     }
 
-    NavHost(navController, startDestination = startDestination) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
 
         /* ======================================================
-           AUTH CHECK (VERY IMPORTANT)
+           AUTH CHECK
            ====================================================== */
         composable("authCheck") {
             val user = FirebaseAuth.getInstance().currentUser
@@ -143,40 +146,49 @@ fun AppNavHost(activity: Activity) {
         }
 
         /* ---------------- EDIT PROFILE ---------------- */
-        composable(route = "editProfile") {
+        composable("editProfile") {
             EditProfileScreen(
                 onBack = {
                     navController.popBackStack()
                 },
                 onProfileSaved = {
-                    navController.navigate("home") {
+                    navController.navigate("profile") {
                         popUpTo("editProfile") { inclusive = true }
                     }
                 }
             )
         }
 
-
         /* ---------------- HOME ---------------- */
         composable("home") {
             HomeScreen(
+                onProfileClick = {
+                    navController.navigate("profile")
+                },
+                onHomeClick = {},
+                onGridClick = {},
+                onAddClick = {},
+                onNotificationClick = {},
+                onTransactionClick = {},
+                onChitFunds = {},
+                onGoals = {},
+                onLoans = {}
+            )
+        }
+
+        /* ---------------- PROFILE ---------------- */
+        composable("profile") {
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onEditProfile = { navController.navigate("editProfile") },
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
                     navController.navigate("login") {
                         popUpTo("home") { inclusive = true }
                     }
                 },
-                onProfileClick = { navController.navigate("editProfile") },
-                onHomeClick={},
-                onGridClick={},
-                onAddClick={},
-                onNotificationClick={},
-                onTransactionClick={},
-                onChitFunds={},
-                onGoals={},
-                onLoans={}
             )
         }
-
     }
+
 }

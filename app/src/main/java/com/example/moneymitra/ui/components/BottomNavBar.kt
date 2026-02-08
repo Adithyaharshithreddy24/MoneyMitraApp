@@ -22,7 +22,7 @@ fun BottomNavBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        containerColor = Color(0xFF0B1A3A)
+        containerColor = Color(0xFF11123C)
     ) {
 
         NavigationBarItem(

@@ -17,7 +17,7 @@ fun ProfileIcon(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color(0xFF0B1A3A),
+        containerColor = Color(0xFF11123C),
         shape = RoundedCornerShape(50.dp)
     ) {
         Icon(
