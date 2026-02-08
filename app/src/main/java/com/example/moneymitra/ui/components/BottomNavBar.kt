@@ -38,7 +38,7 @@ fun BottomNavBar(
             label = {
                 Text(
                     text = "Home",
-                    fontSize = 9.sp,
+                    fontSize = 8.sp,
                     color = Color.White
                 )
             }
@@ -57,7 +57,7 @@ fun BottomNavBar(
             label = {
                 Text(
                     text = "Cetogeries",
-                    fontSize = 9.sp,
+                    fontSize = 8.sp,
                     color = Color.White
                 )
             }
@@ -78,7 +78,7 @@ fun BottomNavBar(
             label = {
                 Text(
                     text = "Notifications",
-                    fontSize = 9.sp,
+                    fontSize = 8.sp,
                     color = Color.White
                 )
             }
@@ -97,7 +97,7 @@ fun BottomNavBar(
             label = {
                 Text(
                     text = "Transactions",
-                    fontSize = 9.sp,
+                    fontSize = 8.sp,
                     color = Color.White
                 )
             }

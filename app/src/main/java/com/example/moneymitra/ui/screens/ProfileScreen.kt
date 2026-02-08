@@ -62,7 +62,7 @@ fun ProfileScreen(
 
 
         CurvedProfileHeader(
-            name = viewModel.user.name,
+            name = viewModel.fullName,
             username = viewModel.user.username,
             onBack = onBack
         )
@@ -115,7 +115,6 @@ fun ProfileScreen(
         SettingsCard(
             onEditProfile = onEditProfile ,
             onChangePassword = { /* open change password */ },
-            onThemeClick = { /* open theme selector */ },
             onHelpClick = { /* open help screen */ }
         )
 
@@ -153,7 +152,7 @@ fun CurvedProfileHeader(
         // 🔹 Background curve
         Canvas(modifier = Modifier.fillMaxSize()) {
 
-            val curveStart = size.height - 450f
+            val curveStart = size.height - 550f
             val curveDepth = size.height - 200f
 
             val path = Path().apply {
@@ -356,7 +355,6 @@ fun SettingRow(
 fun SettingsCard(
     onEditProfile: () -> Unit,
     onChangePassword: () -> Unit,
-    onThemeClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
     Card(
@@ -382,13 +380,6 @@ fun SettingsCard(
                 icon = Icons.Default.Lock,
                 title = "Change password",
                 onClick = onChangePassword
-            )
-
-            SettingRow(
-                icon = Icons.Default.LightMode,
-                title = "Theme",
-                value = "Light mode",
-                onClick = onThemeClick
             )
 
             SettingRow(

@@ -170,7 +170,7 @@ fun EditProfileScreen(
 
         Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            DobPickerField(dob, { dob = it }, Modifier.width(200.dp))
+            DobPickerField(dob, { dob = it }, Modifier.fillMaxSize(0.55f))
             Spacer(Modifier.width(12.dp))
             GenderDropdownField(gender, { gender = it }, Modifier.fillMaxWidth())
         }

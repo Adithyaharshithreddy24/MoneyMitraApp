@@ -82,7 +82,7 @@ fun AssistantRadialMenu(
             AssistantMenuItem(
                 label = "Goals",
                 icon = Icons.Default.Flag,
-                angle = -196f,
+                angle = -200f,
                 visible = expanded,
                 onClick = onGoals
             )
@@ -104,7 +104,7 @@ fun AssistantMenuItem(
     icon: ImageVector,
     angle: Float,
     visible: Boolean,
-    radius: Dp = 90.dp,
+    radius: Dp = 80.dp,
     onClick: () -> Unit
 ) {
     val distance by animateDpAsState(

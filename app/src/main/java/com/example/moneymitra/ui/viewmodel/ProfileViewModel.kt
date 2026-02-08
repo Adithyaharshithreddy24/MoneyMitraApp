@@ -36,6 +36,10 @@ class ProfileViewModel : ViewModel() {
                 user = doc.toObject(User::class.java) ?: User()
             }
     }
+    val fullName: String
+        get() = listOf(user.firstName, user.lastName)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
 
     private fun loadAccounts() {
         accountRepo.fetchAccounts {

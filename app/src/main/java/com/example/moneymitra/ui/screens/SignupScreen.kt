@@ -58,7 +58,7 @@ fun SignupScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 32.dp)
             ) {
-                Spacer(Modifier.height(40.dp))
+                Spacer(Modifier.fillMaxHeight(.05f))
                 Text(
                     text = "Welcome!",
                     color = Color.White,
@@ -66,7 +66,7 @@ fun SignupScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.fillMaxHeight(.02f))
 
                 Image(
                     painter = painterResource(R.drawable.logo_white),
@@ -280,7 +280,7 @@ fun SignupScreen(
                             verticalAlignment = Alignment.CenterVertically
                         )
                         {
-                            Spacer(Modifier.width(20.dp))
+                            Spacer(Modifier.fillMaxSize(.03f))
                             Image(
                                 painter = painterResource(R.drawable.google),
                                 contentDescription = "Google",
@@ -289,7 +289,7 @@ fun SignupScreen(
                                     .size(30.dp)
                                     .clickable { onGoogleClick() }
                             )
-                            Spacer(Modifier.width(20.dp))
+                            Spacer(Modifier.fillMaxSize(.03f))
                             Text(
                                 "Continue with Google",
                                 fontSize = 22.sp,
@@ -299,7 +299,7 @@ fun SignupScreen(
                     }
                     Spacer(Modifier.height(12.dp))
                 }
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.fillMaxHeight(.02f))
             }
         }
     }

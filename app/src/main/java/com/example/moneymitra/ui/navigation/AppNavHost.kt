@@ -10,11 +10,21 @@ import com.example.moneymitra.R
 import com.example.moneymitra.auth.*
 import com.example.moneymitra.ui.screens.*
 import com.google.firebase.auth.FirebaseAuth
+import com.example.moneymitra.auth.InstallStateManager
 
 @Composable
 fun AppNavHost(activity: Activity) {
 
     val navController = rememberNavController()
+    val installStateManager = remember {
+        InstallStateManager(activity)
+    }
+
+    LaunchedEffect(Unit) {
+        if (installStateManager.isFirstLaunch()) {
+            FirebaseAuth.getInstance().signOut()
+        }
+    }
 
     val googleAuth = GoogleAuthManager(
         activity,
@@ -44,12 +54,12 @@ fun AppNavHost(activity: Activity) {
         }
 
     /* ---------------- START DESTINATION ---------------- */
-    val startDestination = remember {
-        if (FirebaseAuth.getInstance().currentUser != null)
-            "authCheck"
-        else
+    val startDestination =
+        if (FirebaseAuth.getInstance().currentUser == null)
             "login"
-    }
+        else
+            "authCheck"
+
 
     NavHost(
         navController = navController,
@@ -183,10 +193,12 @@ fun AppNavHost(activity: Activity) {
                 onEditProfile = { navController.navigate("editProfile") },
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
+                    googleAuth.googleSignInClient.signOut()
+
                     navController.navigate("login") {
-                        popUpTo("home") { inclusive = true }
+                        popUpTo(0)
                     }
-                },
+                }
             )
         }
     }

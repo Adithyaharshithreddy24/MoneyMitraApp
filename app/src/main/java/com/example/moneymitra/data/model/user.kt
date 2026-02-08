@@ -1,6 +1,8 @@
 package com.example.moneymitra.data.model
 
 data class User(
-    val name: String = "",
+    val firstName: String = "",
+    val lastName: String = "",
     val username: String = ""
 )
+
