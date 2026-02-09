@@ -5,14 +5,25 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.moneymitra.R
 import com.example.moneymitra.auth.*
 import com.example.moneymitra.ui.screens.*
 import com.google.firebase.auth.FirebaseAuth
 import com.example.moneymitra.auth.InstallStateManager
+import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
 
 @Composable
 fun AppNavHost(activity: Activity) {
@@ -200,9 +211,11 @@ fun AppNavHost(activity: Activity) {
                 },
                 onHomeClick = {},
                 onGridClick = {},
-                onAddClick = {},
+                onManual = {navController.navigate("addTransaction")},
+                onScan = {},
+                onUpload = {},
                 onNotificationClick = {},
-                onTransactionClick = {},
+                onTransactionClick = {navController.navigate("transactions")},
                 onChitFunds = {},
                 onGoals = {},
                 onLoans = {}
@@ -224,6 +237,65 @@ fun AppNavHost(activity: Activity) {
                 }
             )
         }
+        composable("transactions") {
+            TransactionsScreen(
+                onBack = { navController.popBackStack() },
+                onEdit = {tx->navController.navigate("editTransaction/${tx.id}")}
+            )
+        }
+
+
+        composable("addTransaction") {
+            AddTransactionScreen(
+                onBack = { navController.popBackStack() },
+                onSaved = {
+                    navController.navigate("home") {
+                        popUpTo("addTransaction") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable("editTransaction/{txId}") { backStack ->
+            val txId = backStack.arguments?.getString("txId") ?: return@composable
+            val vm: TransactionsViewModel = viewModel()
+
+            var tx by remember { mutableStateOf<Transaction?>(null) }
+            var error by remember { mutableStateOf<String?>(null) }
+
+            LaunchedEffect(txId) {
+                vm.getTransaction(
+                    txId = txId,
+                    onSuccess = { tx = it },
+                    onError = { error = it }
+                )
+            }
+
+            when {
+                error != null -> {
+                    Text(
+                        text = error!!,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                tx == null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                else -> {
+                    EditTransactionScreen(
+                        transaction = tx!!,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+
     }
 
 }

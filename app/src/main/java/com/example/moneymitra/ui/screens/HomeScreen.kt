@@ -20,19 +20,28 @@ import com.example.moneymitra.R
 import com.example.moneymitra.ui.components.*
 import com.example.moneymitra.ui.theme.Lovelo
 
+enum class FabMenu {
+    NONE,
+    ADD,
+    ASSISTANT
+}
+
 @Composable
 fun HomeScreen(
     onProfileClick: () -> Unit,
     onHomeClick: () -> Unit,
     onGridClick: () -> Unit,
-    onAddClick: () -> Unit,
+    onManual: () -> Unit,
+    onScan:()->Unit,
+    onUpload:()->Unit,
     onNotificationClick: () -> Unit,
     onTransactionClick: () -> Unit,
     onChitFunds: () -> Unit,
     onGoals: () -> Unit,
     onLoans: () -> Unit
 ) {
-    var assistantOpen by remember { mutableStateOf(false) }
+
+    var activeFab by remember { mutableStateOf(FabMenu.NONE) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -67,24 +76,31 @@ fun HomeScreen(
 
         /* ---------- ASSISTANT FAB (BOTTOM RIGHT) ---------- */
         AssistantFab(
-            onClick = { assistantOpen = !assistantOpen },
+            onClick = {
+                activeFab =
+                    if (activeFab == FabMenu.ASSISTANT)
+                        FabMenu.NONE
+                    else
+                        FabMenu.ASSISTANT
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = 96.dp)
-                .zIndex(5f)
-
+                .zIndex(10f)
         )
 
+
         /* ---------- ASSISTANT RADIAL MENU ---------- */
-        if (assistantOpen) {
+        if (activeFab == FabMenu.ASSISTANT) {
             AssistantRadialMenu(
                 expanded = true,
-                onDismiss = { assistantOpen = false },
+                onDismiss = { activeFab = FabMenu.NONE },
                 onChitFunds = onChitFunds,
                 onGoals = onGoals,
                 onLoans = onLoans
             )
         }
+
 
         /* ---------- BOTTOM NAV ---------- */
         BottomNavBar(
@@ -99,12 +115,29 @@ fun HomeScreen(
 
         /* ---------- + ADD FAB (CENTER) ---------- */
         CenterAddFab(
-            onClick = onAddClick,
+            onClick = {
+                activeFab =
+                    if (activeFab == FabMenu.ADD)
+                        FabMenu.NONE
+                    else
+                        FabMenu.ADD
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 25.dp)
                 .size(70.dp)
-                .zIndex(5f)
+                .zIndex(10f)
         )
+
+        if (activeFab == FabMenu.ADD) {
+            AddRadialMenu(
+                expanded = true,
+                onDismiss = { activeFab = FabMenu.NONE },
+                onManual = onManual,
+                onScan = onScan,
+                onUpload = onUpload
+            )
+        }
+
     }
 }
