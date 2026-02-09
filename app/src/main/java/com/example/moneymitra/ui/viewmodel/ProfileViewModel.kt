@@ -37,7 +37,7 @@ class ProfileViewModel : ViewModel() {
             }
     }
     val fullName: String
-        get() = listOf(user.firstName, user.lastName)
+        get() = listOf(user.firstName.trim()," ", user.lastName.trim())
             .filter { it.isNotBlank() }
             .joinToString(" ")
 

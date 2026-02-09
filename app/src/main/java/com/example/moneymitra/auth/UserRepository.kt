@@ -75,11 +75,8 @@ object UserRepository {
                 Log.d("USERNAME_CHECK", "Docs found = ${snapshot.size()}")
                 onResult(snapshot.isEmpty)
             }
-            .addOnFailureListener { e ->
-                Log.e("USERNAME_CHECK", "FAILED", e)
-                // ⛔ DO NOT MARK AS USED ON FAILURE
+            .addOnFailureListener {
                 onResult(true)
             }
     }
-
 }

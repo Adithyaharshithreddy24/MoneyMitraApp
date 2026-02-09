@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "mailsender"
+rootProject.name = "Money Mitra"
 include(":app")

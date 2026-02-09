@@ -1,17 +1,24 @@
 package com.example.moneymitra.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.example.moneymitra.R
 import com.example.moneymitra.ui.components.*
+import com.example.moneymitra.ui.theme.Lovelo
 
 @Composable
 fun HomeScreen(
@@ -28,7 +35,26 @@ fun HomeScreen(
     var assistantOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(0.dp,12.dp,8.dp,8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logo_color),
+                contentDescription = null,
+                modifier = Modifier.size(60.dp)
+                    .padding(13.dp,0.dp,0.dp,17.dp)
+            )
+            Text(
+                text = "oney Mitra",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Lovelo
+            )
+        }
         /* ---------- PROFILE (TOP RIGHT) ---------- */
         ProfileIcon(
             onClick = onProfileClick,
@@ -36,6 +62,7 @@ fun HomeScreen(
                 .align(Alignment.TopEnd)
                 .padding(16.dp)
                 .zIndex(3f)
+                .size(40.dp)
         )
 
         /* ---------- ASSISTANT FAB (BOTTOM RIGHT) ---------- */

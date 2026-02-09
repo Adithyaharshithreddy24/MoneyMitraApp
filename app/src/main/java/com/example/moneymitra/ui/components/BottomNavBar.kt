@@ -113,6 +113,7 @@ fun CenterAddFab(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier ,
+        containerColor = Color.White,
         shape = RoundedCornerShape(50.dp)
     ) {
         Icon(

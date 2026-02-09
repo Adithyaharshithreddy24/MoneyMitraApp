@@ -1,12 +1,17 @@
 package com.example.moneymitra.ui.theme
 
+import com.example.moneymitra.R
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 // Set of Material typography styles to start with
+val Lovelo = FontFamily(
+    Font(R.font.lovelo_black, )
+)
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,

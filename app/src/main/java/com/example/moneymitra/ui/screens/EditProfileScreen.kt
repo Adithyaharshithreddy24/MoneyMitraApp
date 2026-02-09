@@ -187,6 +187,7 @@ fun EditProfileScreen(
                         "username" to username,
                         "firstName" to firstName,
                         "lastName" to lastName,
+                        "email" to email,
                         "phone" to phone,
                         "dob" to dob,
                         "gender" to gender,

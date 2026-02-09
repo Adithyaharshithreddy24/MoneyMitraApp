@@ -1,10 +1,12 @@
 package com.example.moneymitra.ui.navigation
 
 import android.app.Activity
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.*
 import com.example.moneymitra.R
 import com.example.moneymitra.auth.*
@@ -19,6 +21,8 @@ fun AppNavHost(activity: Activity) {
     val installStateManager = remember {
         InstallStateManager(activity)
     }
+    val context = LocalContext.current
+
 
     LaunchedEffect(Unit) {
         if (installStateManager.isFirstLaunch()) {
@@ -101,7 +105,7 @@ fun AppNavHost(activity: Activity) {
         composable("login") {
             LoginScreen(
                 onSignInClick = { email, password ->
-                    emailAuth.signInWithEmail(
+                    emailAuth.signInWithEmailOrUsername(
                         email, password,
                         onSuccess = {
                             navController.navigate("authCheck") {
@@ -118,7 +122,7 @@ fun AppNavHost(activity: Activity) {
                         googleAuth.googleSignInClient.signInIntent
                     )
                 },
-                onForgotPassword = {},
+                onForgotPassword = {email -> sendPasswordReset(context ,email)},
                 onSignUpClick = {
                     navController.navigate("signup")
                 }
@@ -137,12 +141,30 @@ fun AppNavHost(activity: Activity) {
                     emailAuth.createUserWithEmail(
                         e, p,
                         onVerificationSent = {
-                            Toast.makeText(
-                                activity,
-                                "Verify email and login",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            navController.popBackStack()
+
+                            // 🔥 LOGIN AFTER VERIFICATION
+                            FirebaseAuth.getInstance()
+                                .signInWithEmailAndPassword(e, p)
+                                .addOnSuccessListener {
+
+                                    // 🔥 CREATE FIRESTORE USER (EMAIL SAVED HERE)
+                                    UserRepository.createUserIfNotExists(
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                activity,
+                                                "Account created. Complete profile.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+
+                                            navController.navigate("authCheck") {
+                                                popUpTo("signup") { inclusive = true }
+                                            }
+                                        },
+                                        onError = {
+                                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
                         },
                         onError = {
                             Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
@@ -154,6 +176,7 @@ fun AppNavHost(activity: Activity) {
                 }
             )
         }
+
 
         /* ---------------- EDIT PROFILE ---------------- */
         composable("editProfile") {

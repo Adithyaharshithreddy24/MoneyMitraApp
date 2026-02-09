@@ -229,7 +229,7 @@ fun CurvedProfileHeader(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = name.ifEmpty { "User" },
+                text = toCamelCase(name.ifEmpty { "User" }),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0B1A3A)

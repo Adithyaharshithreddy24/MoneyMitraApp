@@ -1,6 +1,7 @@
 package com.example.moneymitra.auth
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 object ProfileRepository {
 
@@ -14,8 +15,15 @@ object ProfileRepository {
     ) {
         db.collection("users")
             .document(uid)
-            .set(data)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onError(it.message ?: "Failed to save profile") }
+            .set(
+                data,
+                SetOptions.merge()   // 🔥 THIS IS THE FIX
+            )
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onError(it.message ?: "Profile update failed")
+            }
     }
 }
