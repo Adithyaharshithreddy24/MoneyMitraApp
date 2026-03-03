@@ -63,6 +63,7 @@ fun EditProfileScreen(
     var phone by remember { mutableStateOf("") }
     var dob by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
+    var upiid by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
     /* ---------- LOAD USER DATA ---------- */
@@ -78,7 +79,7 @@ fun EditProfileScreen(
                 phone = it.getString("phone") ?: ""
                 dob = it.getString("dob") ?: ""
                 gender = it.getString("gender") ?: ""
-
+                upiid=it.getString("upiid") ?: ""
                 isUsernameValid = true
             }
     }
@@ -239,6 +240,30 @@ fun EditProfileScreen(
             label = { Text("Last Name") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = upiid,
+            onValueChange = { upiid = it },
+            label = {
+                Text(
+                    buildAnnotatedString {
+                        append("UPI ID ")
+                        withStyle(
+                            style = SpanStyle(color = MaterialTheme.colorScheme.error)
+                        ) {
+                            append("*")
+                        }
+                    }
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.outline,
+                cursorColor = MaterialTheme.colorScheme.outline
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(Modifier.height(12.dp))
 
@@ -291,6 +316,7 @@ fun EditProfileScreen(
                     !checkingUsername &&
                     isUsernameValid &&
                     username.isNotBlank() &&
+                    upiid.isNotBlank() &&
                     firstName.isNotBlank()
 
         Button(
@@ -313,6 +339,7 @@ fun EditProfileScreen(
                         "username" to username,
                         "firstName" to firstName,
                         "lastName" to lastName,
+                        "upiid" to upiid,
                         "email" to email,
                         "phone" to phone,
                         "dob" to dob,
