@@ -6,8 +6,9 @@ import com.google.firebase.firestore.Query
 data class Transaction(
     val id: String = "",
     val accountId: String = "",
+    val name:String = "",
     val amount: Double = 0.0,
-    val type: String = "DEBIT",
+    val type: String = "EXPENSE",
     val accountLabel: String = "",// CREDIT / DEBIT
     val category: String = "",
     val customCategory: String? = null,

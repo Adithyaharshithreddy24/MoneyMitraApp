@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.DocumentScanner
@@ -42,15 +43,17 @@ fun AddFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.colorScheme
+
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color(0xFF11123C)
+        containerColor = colors.primary,
+        contentColor = colors.onPrimary
     ) {
         Icon(
-            imageVector = Icons.Default.SupportAgent,
-            contentDescription = "Assistant" ,
-            tint = Color.White
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add"
         )
     }
 }
@@ -70,14 +73,18 @@ fun AddRadialMenu(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onDismiss() },
-        contentAlignment = Alignment.BottomEnd
+        contentAlignment = Alignment.BottomCenter   // ✅ CENTER
     ) {
-        Box(modifier = Modifier.padding(end = 150.dp, bottom = 35.dp)) {
+
+        Box(
+            modifier = Modifier
+                .padding(bottom = 60.dp)
+        ) {
 
             AddMenuItem(
                 label = "Manual",
                 icon = Icons.Default.Edit,
-                angle = -145f,
+                angle = -160f,
                 visible = expanded,
                 onClick = onManual
             )
@@ -93,7 +100,7 @@ fun AddRadialMenu(
             AddMenuItem(
                 label = "Upload",
                 icon = Icons.Default.CloudUpload,
-                angle = -35f,
+                angle = -20f,
                 visible = expanded,
                 onClick = onUpload
             )
@@ -107,18 +114,20 @@ fun AddMenuItem(
     icon: ImageVector,
     angle: Float,
     visible: Boolean,
-    radius: Dp = 80.dp,
+    radius: Dp = 70.dp,
     onClick: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+
     val distance by animateDpAsState(
         targetValue = if (visible) radius else 0.dp,
-        animationSpec = tween(1000),
+        animationSpec = tween(350),
         label = ""
     )
 
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(1000),
+        animationSpec = tween(250),
         label = ""
     )
 
@@ -133,7 +142,6 @@ fun AddMenuItem(
         (distance.toPx() * sin(angleRad).toFloat()).toDp()
     }
 
-
     Column(
         modifier = Modifier
             .offset(x = offsetX, y = offsetY)
@@ -141,25 +149,26 @@ fun AddMenuItem(
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Surface(
             shape = CircleShape,
-            color = Color(0xFF11123C),
-            shadowElevation = 10.dp
+            color = colors.primary,
+            shadowElevation = 8.dp
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = Color.White,
+                tint = colors.onPrimary,
                 modifier = Modifier.padding(14.dp)
             )
         }
 
-        Spacer(Modifier.height(1.dp))
+        Spacer(Modifier.height(4.dp))
 
         Text(
             text = label,
             fontSize = 12.sp,
-            color = Color(0xFF11123C)
+            color = colors.onBackground
         )
     }
 }

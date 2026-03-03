@@ -2,6 +2,7 @@ package com.example.moneymitra.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,8 +34,8 @@ fun HomeScreen(
     onHomeClick: () -> Unit,
     onGridClick: () -> Unit,
     onManual: () -> Unit,
-    onScan:()->Unit,
-    onUpload:()->Unit,
+    onScan: () -> Unit,
+    onUpload: () -> Unit,
     onNotificationClick: () -> Unit,
     onTransactionClick: () -> Unit,
     onChitFunds: () -> Unit,
@@ -41,40 +43,62 @@ fun HomeScreen(
     onLoans: () -> Unit
 ) {
 
+    val isDark = isSystemInDarkTheme()
+    val colors = MaterialTheme.colorScheme
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp
+
     var activeFab by remember { mutableStateOf(FabMenu.NONE) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.background)   // 🔥 theme adaptive
+    ) {
+
+        /* ---------- TOP BAR ---------- */
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(0.dp,12.dp,8.dp,8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Image(
-                painter = painterResource(R.drawable.logo_color),
+                painter = painterResource(
+                    if (isDark) R.drawable.logo_white
+                    else R.drawable.logo_color
+                ),
                 contentDescription = null,
-                modifier = Modifier.size(60.dp)
-                    .padding(13.dp,0.dp,0.dp,17.dp)
+                modifier = Modifier.size(48.dp) // smaller & clean
             )
+
             Text(
-                text = "oney Mitra",
-                fontSize = 20.sp,
+                text = "ONEY MITRA",
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = Lovelo
+                fontFamily = Lovelo,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.offset(y = (12).dp) // 🔥 Pull text closer
             )
         }
-        /* ---------- PROFILE (TOP RIGHT) ---------- */
+
+
+        /* ---------- PROFILE ICON ---------- */
+
         ProfileIcon(
             onClick = onProfileClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
+                .statusBarsPadding()
                 .padding(16.dp)
-                .zIndex(3f)
-                .size(40.dp)
+                .size(42.dp)
         )
 
-        /* ---------- ASSISTANT FAB (BOTTOM RIGHT) ---------- */
+        /* ---------- ASSISTANT FAB ---------- */
+
         AssistantFab(
             onClick = {
                 activeFab =
@@ -85,12 +109,13 @@ fun HomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 96.dp)
+                .padding(
+                    end = 16.dp,
+                    bottom = 96.dp
+                )
                 .zIndex(10f)
         )
 
-
-        /* ---------- ASSISTANT RADIAL MENU ---------- */
         if (activeFab == FabMenu.ASSISTANT) {
             AssistantRadialMenu(
                 expanded = true,
@@ -101,19 +126,20 @@ fun HomeScreen(
             )
         }
 
-
         /* ---------- BOTTOM NAV ---------- */
+
         BottomNavBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .zIndex(1f),
+                .navigationBarsPadding(),   // 🔥 safe area
             onHomeClick = onHomeClick,
             onGridClick = onGridClick,
             onNotificationClick = onNotificationClick,
             onTransactionClick = onTransactionClick
         )
 
-        /* ---------- + ADD FAB (CENTER) ---------- */
+        /* ---------- CENTER ADD FAB ---------- */
+
         CenterAddFab(
             onClick = {
                 activeFab =
@@ -124,7 +150,7 @@ fun HomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 25.dp)
+                .padding(bottom = 28.dp)
                 .size(70.dp)
                 .zIndex(10f)
         )
@@ -138,6 +164,5 @@ fun HomeScreen(
                 onUpload = onUpload
             )
         }
-
     }
 }

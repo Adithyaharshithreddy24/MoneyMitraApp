@@ -27,6 +27,7 @@ import com.example.moneymitra.data.model.Account
 import com.example.moneymitra.ui.viewmodel.ProfileViewModel
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -36,15 +37,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import com.example.moneymitra.ui.theme.LightGradientEnd
+import com.example.moneymitra.ui.theme.LightGradientStart
+import com.example.moneymitra.ui.theme.DarkLinkBlue
 import java.security.KeyStore
-
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
-    onEditProfile:()-> Unit,
+    onEditProfile: () -> Unit,
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
+
+    val isDark = isSystemInDarkTheme()
+    val buttonGradient = if (isDark) {
+        Brush.horizontalGradient(
+            listOf(Color(0xFF283593), Color(0xFF5C6BC0))
+        )
+    } else {
+        Brush.horizontalGradient(
+            listOf(LightGradientStart, LightGradientEnd)
+        )
+    }
+    val colors = MaterialTheme.colorScheme
     var showAddAccount by remember { mutableStateOf(false) }
 
     if (showAddAccount) {
@@ -53,13 +68,13 @@ fun ProfileScreen(
             onAccountSaved = { showAddAccount = false }
         )
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F8FA))
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
     ) {
-
 
         CurvedProfileHeader(
             name = viewModel.fullName,
@@ -77,52 +92,51 @@ fun ProfileScreen(
             }
         }
 
+        Spacer(Modifier.height(8.dp))
+
+        /* -------- Add Account Button -------- */
+
+        val isDark = isSystemInDarkTheme()
+
         Button(
             onClick = { showAddAccount = true },
             modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .height(60.dp),
-            shape = RoundedCornerShape(26.dp),
+                .height(56.dp),
+            shape = RoundedCornerShape(30.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent
-            )
+            ),
+            contentPadding = PaddingValues(0.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFF000000), // start
-                                Color(0xFF282B8C)  // end
-                            )
-                        ),
-                        shape = RoundedCornerShape(26.dp)
-                    ),
+                    .background(buttonGradient, RoundedCornerShape(26.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "+ Add Account",
                     color = Color.White,
-                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
 
+
         Spacer(modifier = Modifier.height(16.dp))
 
         SettingsCard(
-            onEditProfile = onEditProfile ,
-            onChangePassword = { /* open change password */ },
-            onHelpClick = { /* open help screen */ }
+            onEditProfile = onEditProfile,
+            onChangePassword = {},
+            onHelpClick = {}
         )
-
 
         Spacer(modifier = Modifier.height(24.dp))
 
         TextButton(
-            onClick = onLogout,   // ✅ FIXED
+            onClick = onLogout,
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
@@ -131,7 +145,10 @@ fun ProfileScreen(
                 tint = Color.Red
             )
             Spacer(Modifier.width(6.dp))
-            Text("Logout", color = Color.Red)
+            Text(
+                "Logout",
+                color = Color.Red
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -143,17 +160,20 @@ fun CurvedProfileHeader(
     username: String,
     onBack: () -> Unit
 ) {
+
+    val colors = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(260.dp)
     ) {
 
-        // 🔹 Background curve
         Canvas(modifier = Modifier.fillMaxSize()) {
 
-            val curveStart = size.height - 550f
-            val curveDepth = size.height - 200f
+            val curveStart = size.height * 0.25f
+            val curveDepth = size.height * 0.75f
+
 
             val path = Path().apply {
                 moveTo(0f, 0f)
@@ -171,15 +191,11 @@ fun CurvedProfileHeader(
             drawPath(
                 path = path,
                 brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(0xFF000000), // start
-                        Color(0xFF282B8C)  // end
-                    )
+                    listOf(Color.Black, colors.primary)
                 )
             )
         }
 
-        // 🔹 Top bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -190,20 +206,19 @@ fun CurvedProfileHeader(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
+                    contentDescription = null,
+                    tint = colors.onPrimary
                 )
             }
 
             Text(
                 text = "Profile",
-                color = Color.White,
+                color = colors.onPrimary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        // 🔹 Profile image + name (INSIDE Box)
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -213,8 +228,8 @@ fun CurvedProfileHeader(
 
             Box(
                 modifier = Modifier
-                    .size(90.dp)
-                    .background(Color.White, CircleShape),
+                    .size(80.dp)
+                    .background(Color.Transparent, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -223,6 +238,7 @@ fun CurvedProfileHeader(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(CircleShape)
+                        .background(Color.White)
                 )
             }
 
@@ -232,48 +248,37 @@ fun CurvedProfileHeader(
                 text = toCamelCase(name.ifEmpty { "User" }),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0B1A3A)
+                color = colors.onBackground
             )
 
             if (username.isNotEmpty()) {
                 Text(
                     text = "@$username",
-                    color = Color(0xFF0B1A3A),
+                    color = colors.onBackground.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
             }
         }
     }
 }
-fun toCamelCase(text: String): String =
-    text.lowercase()
-        .split(" ")
-        .joinToString(" ") {
-            it.replaceFirstChar { ch ->
-                if (ch.isLowerCase()) ch.titlecase() else ch.toString()
-            }
-        }
 @Composable
 fun AccountCard(account: Account) {
+
+    val colors = MaterialTheme.colorScheme
 
     Card(
         modifier = Modifier
             .width(220.dp)
             .height(145.dp),
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        )
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF334BA8),Color(0xFF282B8C)
-                        )
+                    Brush.linearGradient(
+                        listOf(colors.primary, colors.secondary)
                     )
                 )
                 .padding(16.dp)
@@ -281,13 +286,12 @@ fun AccountCard(account: Account) {
 
             Column(modifier = Modifier.fillMaxSize()) {
 
-                /* -------- TOP ROW -------- */
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = account.bankName.uppercase(), // 🔥 CAPS
+                        text = account.bankName.uppercase(),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
@@ -300,31 +304,53 @@ fun AccountCard(account: Account) {
                         tint = Color.White.copy(alpha = 0.8f)
                     )
                 }
-                /* -------- ACCOUNT TYPE -------- */
+
                 Text(
-                    text = toCamelCase(account.accType), // 🔥 camel case
+                    text = toCamelCase(account.accType),
                     color = Color.White.copy(alpha = 0.75f),
                     fontSize = 12.sp
                 )
+
                 Spacer(modifier = Modifier.weight(1f))
 
-                /* -------- ACCOUNT NUMBER -------- */
                 Text(
                     text = "**** **** **** ${account.accNo.takeLast(4)}",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-
             }
         }
     }
 }
+@Composable
+fun SettingsCard(
+    onEditProfile: () -> Unit,
+    onChangePassword: () -> Unit,
+    onHelpClick: () -> Unit
+) {
 
+    val colors = MaterialTheme.colorScheme
 
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colors.surface
+        )
+    ) {
+        Column {
+            SettingRow(Icons.Default.Person, "Edit profile information", onClick = onEditProfile)
+            SettingRow(Icons.Default.Language, "Language", value = "English")
+            SettingRow(Icons.Default.Lock, "Change password", onClick = onChangePassword)
+            SettingRow(Icons.Default.Help, "Help & Support", onClick = onHelpClick)
+            SettingRow(Icons.Default.Email, "Contact us")
+            SettingRow(Icons.Default.Security, "Privacy policy")
+        }
+    }
+}
 @Composable
 fun SettingRow(
     icon: ImageVector,
@@ -332,71 +358,60 @@ fun SettingRow(
     value: String? = null,
     onClick: (() -> Unit)? = null
 ) {
+
+    val colors = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = onClick != null) {
                 onClick?.invoke()
             }
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null)
+
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = colors.onBackground
+        )
+
         Spacer(modifier = Modifier.width(16.dp))
-        Text(title, modifier = Modifier.weight(1f))
+
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            color = colors.onSurface,
+            fontSize = 15.sp
+        )
+
         value?.let {
-            Text(it, color = Color(0xFF4F6BD8))
+            Text(
+                text = it,
+                color = DarkLinkBlue,
+                fontSize = 14.sp
+            )
+        }
+
+        if (onClick != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = colors.onSurface.copy(alpha = 0.5f)
+            )
         }
     }
 }
-
-
-@Composable
-fun SettingsCard(
-    onEditProfile: () -> Unit,
-    onChangePassword: () -> Unit,
-    onHelpClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column {
-            SettingRow(
-                icon = Icons.Default.Person,
-                title = "Edit profile information",
-                onClick = onEditProfile
-            )
-
-            SettingRow(
-                icon = Icons.Default.Language,
-                title = "Language",
-                value = "English"
-            )
-
-            SettingRow(
-                icon = Icons.Default.Lock,
-                title = "Change password",
-                onClick = onChangePassword
-            )
-
-            SettingRow(
-                icon = Icons.Default.Help,
-                title = "Help & Support",
-                onClick = onHelpClick
-            )
-
-            SettingRow(
-                icon = Icons.Default.Email,
-                title = "Contact us"
-            )
-
-            SettingRow(
-                icon = Icons.Default.Security,
-                title = "Privacy policy"
-            )
+fun toCamelCase(text: String): String {
+    return text
+        .lowercase()
+        .split(" ")
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { word ->
+            word.replaceFirstChar { char ->
+                char.uppercase()
+            }
         }
-    }
 }

@@ -27,6 +27,11 @@ fun GenderDropdownField(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded)
             },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.outline,
+                cursorColor = MaterialTheme.colorScheme.outline
+            ),
             modifier = Modifier.menuAnchor()
         )
 

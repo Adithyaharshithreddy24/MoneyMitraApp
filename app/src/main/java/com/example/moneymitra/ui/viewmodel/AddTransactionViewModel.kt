@@ -10,6 +10,7 @@ class AddTransactionViewModel : ViewModel() {
     private val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     fun addTransaction(
+        name : String,
         amount: Double,
         type: String, // INCOME / EXPENSE
         category: String,
@@ -50,6 +51,7 @@ class AddTransactionViewModel : ViewModel() {
             transaction.set(
                 txRef,
                 mapOf(
+                    "name" to name,
                     "amount" to amount,
                     "type" to type,
                     "category" to category,

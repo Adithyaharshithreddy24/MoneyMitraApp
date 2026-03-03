@@ -33,21 +33,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.cos
 import kotlin.math.sin
-
 @Composable
 fun AssistantFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.colorScheme
+
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color(0xFF11123C)
+        containerColor = Color( 0xFF11123C),
+        contentColor = colors.onPrimary
     ) {
         Icon(
             imageVector = Icons.Default.SupportAgent,
-            contentDescription = "Assistant" ,
-            tint = Color.White
+            contentDescription = "Assistant"
         )
     }
 }
@@ -104,18 +105,20 @@ fun AssistantMenuItem(
     icon: ImageVector,
     angle: Float,
     visible: Boolean,
-    radius: Dp = 80.dp,
+    radius: Dp = 78.dp, // slightly larger for better spacing
     onClick: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+
     val distance by animateDpAsState(
         targetValue = if (visible) radius else 0.dp,
-        animationSpec = tween(1000),
+        animationSpec = tween(400),
         label = ""
     )
 
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(1000),
+        animationSpec = tween(300),
         label = ""
     )
 
@@ -130,7 +133,6 @@ fun AssistantMenuItem(
         (distance.toPx() * sin(angleRad).toFloat()).toDp()
     }
 
-
     Column(
         modifier = Modifier
             .offset(x = offsetX, y = offsetY)
@@ -138,25 +140,26 @@ fun AssistantMenuItem(
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Surface(
             shape = CircleShape,
-            color = Color(0xFF11123C),
-            shadowElevation = 10.dp
+            color = colors.primary,
+            shadowElevation = 8.dp
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = Color.White,
+                tint = colors.onPrimary,
                 modifier = Modifier.padding(14.dp)
             )
         }
 
-        Spacer(Modifier.height(1.dp))
+        Spacer(Modifier.height(4.dp))
 
         Text(
             text = label,
             fontSize = 12.sp,
-            color = Color(0xFF11123C)
+            color = colors.onBackground
         )
     }
 }

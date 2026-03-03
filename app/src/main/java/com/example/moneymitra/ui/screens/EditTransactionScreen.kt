@@ -19,9 +19,12 @@ fun EditTransactionScreen(
 ) {
     val vm: TransactionsViewModel = viewModel()
 
+    var paidTo by remember { mutableStateOf(transaction.name) }
     var amount by remember { mutableStateOf(transaction.amount.toString()) }
-    var category by remember { mutableStateOf(transaction.category) }
     var type by remember { mutableStateOf(transaction.type) }
+    var category by remember { mutableStateOf(transaction.category) }
+    var note by remember { mutableStateOf(transaction.note) }
+    var accountLabel by remember { mutableStateOf(transaction.accountLabel) }
 
     Scaffold(
         topBar = {
@@ -40,8 +43,24 @@ fun EditTransactionScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
+            /* ---- PAID TO / RECEIVED FROM ---- */
+            OutlinedTextField(
+                value = paidTo,
+                onValueChange = { paidTo = it },
+                label = {
+                    Text(
+                        if (type == "EXPENSE") "Paid To"
+                        else "Received From"
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            /* ---- AMOUNT ---- */
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
@@ -49,49 +68,62 @@ fun EditTransactionScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(12.dp))
+            DropdownField(
+                label = "Transaction Type",
+                value = type,
+                options = listOf("EXPENSE", "INCOME"),
+                onSelected = { type = it }
+            )
 
-            Row {
-                FilterChip(
-                    selected = type == "DEBIT",
-                    onClick = { type = "DEBIT" },
-                    label = { Text("Expense") }
-                )
-                Spacer(Modifier.width(8.dp))
-                FilterChip(
-                    selected = type == "CREDIT",
-                    onClick = { type = "CREDIT" },
-                    label = { Text("Income") }
-                )
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedTextField(
+            /* ---- CATEGORY ---- */
+            DropdownField(
+                label = "Category",
                 value = category,
-                onValueChange = { category = it },
-                label = { Text("Category") },
+                options = listOf(
+                    "Shopping", "Medicine", "Sport", "Food",
+                    "Transport", "Entertainment", "Bills",
+                    "Income", "Others"
+                ),
+                onSelected = { category = it }
+            )
+
+            /* ---- ACCOUNT ---- */
+            DropdownField(
+                label = "Account",
+                value = accountLabel,
+                options = listOf(accountLabel), // replace later with real accounts list
+                onSelected = { accountLabel = it }
+            )
+
+
+            /* ---- NOTE ---- */
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = { Text("Note (optional)") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(Modifier.height(24.dp))
 
+            /* ---- UPDATE BUTTON ---- */
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     vm.update(
                         oldTx = transaction,
                         newTx = transaction.copy(
-                            amount = amount.toDouble(),
+                            name = paidTo,
+                            amount = amount.toDoubleOrNull() ?: 0.0,
+                            type = type,
                             category = category,
-                            type = type
+                            note = note
                         )
                     )
-
                     onBack()
                 }
             ) {
-                Text("UPDATE")
+                Text("Update Transaction")
             }
         }
     }

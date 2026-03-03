@@ -13,10 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.moneymitra.ui.viewmodel.AddTransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -30,7 +29,7 @@ fun AddTransactionScreen(
 ) {
     val context = LocalContext.current
     val vm: AddTransactionViewModel = viewModel()
-
+    var paidto by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("EXPENSE") }
     var category by remember { mutableStateOf("Food") }
@@ -68,12 +67,18 @@ fun AddTransactionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Transaction") },
+                title = {
+                    Text(
+                        "Add Transaction",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = null
                         )
                     }
                 }
@@ -84,156 +89,90 @@ fun AddTransactionScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(rememberScrollState())
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            OutlinedTextField(
+                value = paidto,
+                onValueChange = { paidto = it },
+                label = { Text(if (type =="EXPENSE" ) "Paid To" else "Recived From")  },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.outline
+                ),
+            )
 
             /* ---------- AMOUNT ---------- */
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
                 label = { Text("Amount") },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.outline
+                ),
             )
-
-            Spacer(Modifier.height(12.dp))
 
             /* ---------- TYPE DROPDOWN ---------- */
-            var typeExpanded by remember { mutableStateOf(false) }
-            val typeOptions = listOf("EXPENSE", "INCOME")
-
-            ExposedDropdownMenuBox(
-                expanded = typeExpanded,
-                onExpandedChange = { typeExpanded = !typeExpanded }
-            ) {
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Transaction Type") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = typeExpanded,
-                    onDismissRequest = { typeExpanded = false }
-                ) {
-                    typeOptions.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it) },
-                            onClick = {
-                                type = it
-                                typeExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            /* ---------- CATEGORY DROPDOWN ---------- */
-            var catExpanded by remember { mutableStateOf(false) }
-            val categories = listOf(
-                "Shopping", "Medicine", "Sport", "Food",
-                "Transport", "Entertainment", "Bills",
-                "Income", "Others"
+            DropdownField(
+                label = "Transaction Type",
+                value = type,
+                options = listOf("EXPENSE", "INCOME"),
+                onSelected = { type = it }
             )
 
-            ExposedDropdownMenuBox(
-                expanded = catExpanded,
-                onExpandedChange = { catExpanded = !catExpanded }
-            ) {
-                OutlinedTextField(
-                    value = category,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Category") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(catExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = catExpanded,
-                    onDismissRequest = { catExpanded = false }
-                ) {
-                    categories.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it) },
-                            onClick = {
-                                category = it
-                                catExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
+            /* ---------- CATEGORY DROPDOWN ---------- */
+            DropdownField(
+                label = "Category",
+                value = category,
+                options = listOf(
+                    "Shopping", "Medicine", "Sport", "Food",
+                    "Transport", "Entertainment", "Bills",
+                    "Income", "Others"
+                ),
+                onSelected = { category = it }
+            )
 
             /* ---------- ACCOUNT DROPDOWN ---------- */
-            var accExpanded by remember { mutableStateOf(false) }
-
-            ExposedDropdownMenuBox(
-                expanded = accExpanded,
-                onExpandedChange = { accExpanded = !accExpanded }
-            ) {
-                OutlinedTextField(
-                    value = accountLabel,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Account") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(accExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = accExpanded,
-                    onDismissRequest = { accExpanded = false }
-                ) {
-                    accounts.forEach { (id, label) ->
-                        DropdownMenuItem(
-                            text = { Text(label) },
-                            onClick = {
-                                accountId = id
-                                accountLabel = label
-                                accExpanded = false
-                            }
-                        )
-                    }
+            DropdownField(
+                label = "Account",
+                value = accountLabel,
+                options = accounts.map { it.second },
+                onSelected = { selected ->
+                    val pair = accounts.find { it.second == selected }
+                    accountId = pair?.first ?: ""
+                    accountLabel = selected
                 }
-            }
-
-            Spacer(Modifier.height(12.dp))
+            )
 
             /* ---------- NOTE ---------- */
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
                 label = { Text("Note (optional)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.outline
+                ),
             )
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(12.dp))
 
-            /* ---------- SAVE BUTTON (GRADIENT) ---------- */
+            /* ---------- SAVE BUTTON ---------- */
             Button(
                 onClick = {
                     loading = true
                     vm.addTransaction(
+                        name = paidto,
                         amount = amount.toDoubleOrNull() ?: 0.0,
                         type = type,
                         category = category,
@@ -252,37 +191,76 @@ fun AddTransactionScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(26.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                contentPadding = PaddingValues(0.dp),
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
                 enabled = !loading &&
+                        paidto.isNotEmpty() &&
                         amount.isNotBlank() &&
                         accountId.isNotBlank()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                listOf(
-                                    Color(0xFF000000),
-                                    Color(0xFF282B8C)
-                                )
-                            ),
-                            shape = RoundedCornerShape(26.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                if (loading) {
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
                     Text(
-                        text = if (loading) "Saving..." else "SAVE TRANSACTION",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        "Save Transaction",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
+            }
+        }
+    }
+}
+
+/* ---------------- REUSABLE DROPDOWN ---------------- */
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownField(
+    label: String,
+    value: String,
+    options: List<String>,
+    onSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.outline,
+                cursorColor = MaterialTheme.colorScheme.outline
+            ),
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach {
+                DropdownMenuItem(
+                    text = { Text(it) },
+                    onClick = {
+                        onSelected(it)
+                        expanded = false
+                    }
+                )
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.moneymitra.ui.components
 
+import android.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -8,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.material3.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,9 +22,10 @@ fun BottomNavBar(
     onNotificationClick: () -> Unit,
     onTransactionClick: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     NavigationBar(
         modifier = modifier,
-        containerColor = Color(0xFF11123C)
+        containerColor = Color( 0xFF11123C),
     ) {
 
         NavigationBarItem(

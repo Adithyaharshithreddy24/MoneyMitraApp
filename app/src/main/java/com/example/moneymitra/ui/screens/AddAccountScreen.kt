@@ -1,6 +1,7 @@
 package com.example.moneymitra.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,15 +31,19 @@ fun AddAccountBottomSheet(
     onAccountSaved: () -> Unit,
     viewModel: AddAccountViewModel = viewModel()
 ) {
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+
+    val colors = MaterialTheme.colorScheme
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        containerColor = Color.White
+        containerColor = colors.surface,   // 🔥 Theme adaptive
+        tonalElevation = 6.dp
     ) {
         AddAccountSheetContent(
             onAccountSaved = onAccountSaved
@@ -48,34 +56,45 @@ fun AddAccountSheetContent(
     onAccountSaved: () -> Unit,
     viewModel: AddAccountViewModel = viewModel()
 ) {
+
+    val colors = MaterialTheme.colorScheme
+    val isDark = isSystemInDarkTheme()
+
     var accName by remember { mutableStateOf("") }
     var accType by remember { mutableStateOf("") }
     var accNo by remember { mutableStateOf("") }
     var bankName by remember { mutableStateOf("") }
     var balance by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+
+    val buttonGradient = if (isDark) {
+        Brush.horizontalGradient(
+            listOf(Color(0xFF283593), Color(0xFF5C6BC0))
+        )
+    } else {
+        Brush.horizontalGradient(
+            listOf(Color.Black, Color(0xFF282B8C))
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .imePadding()
-            .padding(20.dp,0.dp,20.dp,0.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Add Account",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
+        /* Title */
+        Text(
+            text = "Add Account",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = colors.onSurface,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
 
         StyledTextField(accName, "Account Name") { accName = it }
         StyledTextField(bankName, "Bank Name") { bankName = it }
@@ -84,16 +103,25 @@ fun AddAccountSheetContent(
         StyledTextField(balance, "Balance") { balance = it }
 
         if (error.isNotEmpty()) {
-            Text(error, color = MaterialTheme.colorScheme.error)
+            Text(
+                text = error,
+                color = colors.error
+            )
         }
 
-        Spacer(modifier = Modifier.height(0.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        var loading by remember { mutableStateOf(false) }
+        /* Save Button */
 
         Button(
             onClick = {
+
                 if (loading) return@Button
+
+                if (accName.isBlank() ||accType.isBlank() || accNo.isBlank() || bankName.isBlank() || balance.isBlank()) {
+                    error = "Please fill required details"
+                    return@Button
+                }
 
                 loading = true
 
@@ -117,39 +145,43 @@ fun AddAccountSheetContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF000000),
-                            Color(0xFF282B8C)
-                        )
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                ),
+                .height(52.dp),
             shape = RoundedCornerShape(14.dp),
-            enabled = !loading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent
-            )
+            ),
+            contentPadding = PaddingValues(0.dp),
+            enabled = !loading
         ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(22.dp)
-                )
-            } else {
-                Text(
-                    text = "Save Account",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = buttonGradient,
+                        shape = RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+
+                if (loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Save Account",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
 
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 @Composable
@@ -158,12 +190,32 @@ fun StyledTextField(
     label: String,
     onValueChange: (String) -> Unit
 ) {
+
+    val colors = MaterialTheme.colorScheme
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        label = {
+            Text(
+                buildAnnotatedString {
+                    append(label)
+                    append(" ")
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.error)
+                    ) {
+                        append("*")
+                    }
+                }
+            )
+        },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        singleLine = true
+        shape = RoundedCornerShape(26.dp),
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedLabelColor = MaterialTheme.colorScheme.outline,
+            cursorColor = MaterialTheme.colorScheme.outline
+        ),
     )
 }

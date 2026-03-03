@@ -116,11 +116,35 @@ fun AppNavHost(activity: Activity) {
         composable("login") {
             LoginScreen(
                 onSignInClick = { email, password ->
+
                     emailAuth.signInWithEmailOrUsername(
                         email, password,
                         onSuccess = {
-                            navController.navigate("authCheck") {
-                                popUpTo("login") { inclusive = true }
+
+                            val user = FirebaseAuth.getInstance().currentUser
+
+                            if (user != null && user.isEmailVerified) {
+
+                                UserRepository.createUserIfNotExists(
+                                    onSuccess = {
+                                        navController.navigate("authCheck") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    },
+                                    onError = { msg ->
+                                        Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+
+                            } else {
+
+                                FirebaseAuth.getInstance().signOut()
+
+                                Toast.makeText(
+                                    activity,
+                                    "Please verify your email before logging in",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         },
                         onError = {
@@ -149,32 +173,36 @@ fun AppNavHost(activity: Activity) {
                     )
                 },
                 onSignupClick = { e, p, _ ->
+
                     emailAuth.createUserWithEmail(
                         e, p,
                         onVerificationSent = {
 
-                            // 🔥 LOGIN AFTER VERIFICATION
-                            FirebaseAuth.getInstance()
-                                .signInWithEmailAndPassword(e, p)
-                                .addOnSuccessListener {
+                            val firebaseUser = FirebaseAuth.getInstance().currentUser
 
-                                    // 🔥 CREATE FIRESTORE USER (EMAIL SAVED HERE)
-                                    UserRepository.createUserIfNotExists(
-                                        onSuccess = {
-                                            Toast.makeText(
-                                                activity,
-                                                "Account created. Complete profile.",
-                                                Toast.LENGTH_LONG
-                                            ).show()
+                            firebaseUser?.sendEmailVerification()
+                                ?.addOnSuccessListener {
 
-                                            navController.navigate("authCheck") {
-                                                popUpTo("signup") { inclusive = true }
-                                            }
-                                        },
-                                        onError = {
-                                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
-                                        }
-                                    )
+                                    Toast.makeText(
+                                        activity,
+                                        "Verification email sent. Please verify before logging in.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+
+                                    // 🔥 Sign out until verified
+                                    FirebaseAuth.getInstance().signOut()
+
+                                    // 🔥 Navigate to Sign In
+                                    navController.navigate("login") {
+                                        popUpTo("signup") { inclusive = true }
+                                    }
+                                }
+                                ?.addOnFailureListener {
+                                    Toast.makeText(
+                                        activity,
+                                        "Failed to send verification email",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                         },
                         onError = {

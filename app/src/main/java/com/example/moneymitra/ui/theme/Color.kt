@@ -3,12 +3,32 @@ package com.example.moneymitra.ui.theme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+/* -------- LIGHT THEME COLORS -------- */
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val LightGradientStart = Color(0xFF000000)
+val LightGradientEnd = Color(0xFF282B8C)
+val LightLinkBlue = Color(0xFF2563EB)
+val LightCardBackground = Color.White
 
+/* -------- DARK THEME -------- */
 
+val DarkGradientStart = Color(0xFF000000)
+val DarkGradientEnd = Color(0xFF1A237E)
+val DarkLinkBlue = Color(0xFF1278E7)
+val DarkCardBackground = Color(0xFF000000)
+val DarkGoogleCard = Color(0xFF1F2023)
+/* -------- LOGIN GRADIENTS -------- */
+
+val LoginGradientLight = Brush.horizontalGradient(
+    listOf(
+        LightGradientStart,
+        LightGradientEnd
+    )
+)
+
+val LoginGradientDark = Brush.horizontalGradient(
+    listOf(
+        DarkGradientStart,
+        DarkGradientEnd
+    )
+)

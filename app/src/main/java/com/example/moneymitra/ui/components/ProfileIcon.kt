@@ -14,16 +14,19 @@ fun ProfileIcon(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val colors = MaterialTheme.colorScheme
+
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color(0xFF11123C),
-        shape = RoundedCornerShape(50.dp)
+        containerColor = colors.onBackground,
+        contentColor = colors.background,
+        shape = RoundedCornerShape(50.dp),
     ) {
         Icon(
             imageVector = Icons.Default.Person,
-            contentDescription = "Profile",
-            tint = Color.White
+            contentDescription = "Profile"
         )
     }
 }
