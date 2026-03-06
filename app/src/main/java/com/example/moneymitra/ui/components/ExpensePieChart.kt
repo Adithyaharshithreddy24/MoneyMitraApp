@@ -4,10 +4,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.moneymitra.ui.viewmodel.ExpenseCategory
 
 @Composable
@@ -15,34 +17,49 @@ fun ExpensePieChart(
     categories: List<ExpenseCategory>,
     totalExpense: Double
 ) {
+
     Box(
-        modifier = Modifier.size(200.dp),
-        contentAlignment = androidx.compose.ui.Alignment.Center
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
+
+        Canvas(
+            modifier = Modifier.size(170.dp)
+        ) {
 
             var startAngle = -90f
 
-            categories.forEach { category ->
+            categories.forEach {
 
                 val sweep =
-                    (category.amount / totalExpense * 360).toFloat()
+                    (it.amount / totalExpense * 360).toFloat()
 
                 drawArc(
-                    color = category.color,
+                    color = it.color,
                     startAngle = startAngle,
                     sweepAngle = sweep,
                     useCenter = false,
-                    style = Stroke(width = 40f)
+                    style = Stroke(width = 45f)
                 )
 
                 startAngle += sweep
             }
         }
 
-        Text(
-            text = "₹%.0f".format(totalExpense),
-            fontWeight = FontWeight.Bold
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text(
+                "Total Expenses",
+                fontSize = 12.sp
+            )
+
+            Text(
+                "₹%.2f".format(totalExpense),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
     }
 }

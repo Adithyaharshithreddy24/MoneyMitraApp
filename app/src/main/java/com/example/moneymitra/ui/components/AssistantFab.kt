@@ -3,6 +3,7 @@ package com.example.moneymitra.ui.components
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AttachMoney
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +73,7 @@ fun AssistantRadialMenu(
             ) { onDismiss() },
         contentAlignment = Alignment.BottomEnd
     ) {
-        Box(modifier = Modifier.padding(end = 24.dp, bottom = 104.dp)) {
+        Box(modifier = Modifier.padding(end = 18.dp, bottom = 104.dp)) {
 
             AssistantMenuItem(
                 label = "Chit Funds",
@@ -91,7 +94,7 @@ fun AssistantRadialMenu(
             AssistantMenuItem(
                 label = "Loans",
                 icon = Icons.Default.AttachMoney,
-                angle = -75f,
+                angle = -70f,
                 visible = expanded,
                 onClick = onLoans
             )
@@ -105,7 +108,7 @@ fun AssistantMenuItem(
     icon: ImageVector,
     angle: Float,
     visible: Boolean,
-    radius: Dp = 78.dp, // slightly larger for better spacing
+    radius: Dp = 74.dp, // slightly larger for better spacing
     onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
@@ -154,12 +157,20 @@ fun AssistantMenuItem(
             )
         }
 
-        Spacer(Modifier.height(4.dp))
-
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = colors.onBackground
-        )
+        Box(
+            modifier = Modifier
+                .background(
+                    color = Color.Gray.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(5.dp,0.dp)
+        ) {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
     }
 }

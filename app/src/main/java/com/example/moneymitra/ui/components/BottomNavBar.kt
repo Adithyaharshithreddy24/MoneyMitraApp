@@ -20,7 +20,7 @@ fun BottomNavBar(
     onHomeClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onTransactionClick: () -> Unit
+    onProfileClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     NavigationBar(
@@ -89,17 +89,17 @@ fun BottomNavBar(
 
         NavigationBarItem(
             selected = false,
-            onClick = onTransactionClick,
+            onClick = onProfileClick,
             icon = {
                 Icon(
-                    Icons.Default.SyncAlt,
+                    Icons.Default.Person,
                     null,
                     tint = Color.White
                 )
             },
             label = {
                 Text(
-                    text = "Transactions",
+                    text = "Profile",
                     fontSize = 8.sp,
                     color = Color.White
                 )

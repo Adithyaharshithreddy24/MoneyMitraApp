@@ -10,18 +10,33 @@ import kotlinx.coroutines.flow.StateFlow
 class TransactionsViewModel : ViewModel() {
 
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
+
+    private val _recentTransactions =
+        MutableStateFlow<List<Transaction>>(emptyList())
+
+    val recentTransactions: StateFlow<List<Transaction>> =
+        _recentTransactions
     val transactions: StateFlow<List<Transaction>> = _transactions
 
     fun loadTransactions() {
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         TransactionRepository.getTransactions(
             uid = uid,
             onSuccess = {
-                _transactions.value = it
+
+                val sorted =
+                    it.sortedByDescending { tx -> tx.createdAt }
+
+                _transactions.value = sorted
+
+                // 🔹 Only latest 4 for dashboard
+                _recentTransactions.value = sorted.take(4)
             },
             onError = {
                 _transactions.value = emptyList()
+                _recentTransactions.value = emptyList()
             }
         )
     }

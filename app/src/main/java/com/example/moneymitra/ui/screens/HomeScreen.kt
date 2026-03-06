@@ -6,9 +6,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +18,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.CheckboxDefaults.colors
+import androidx.compose.ui.unit.offset
 import com.example.moneymitra.R
 import com.example.moneymitra.ui.components.*
 import com.example.moneymitra.ui.theme.Lovelo
 import com.example.moneymitra.ui.viewmodel.HomeViewModel
+import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 enum class FabMenu {
     NONE,
@@ -48,86 +56,169 @@ fun HomeScreen(
 ) {
 
     val isDark = isSystemInDarkTheme()
-    val colors = MaterialTheme.colorScheme
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
+
     val viewModel: HomeViewModel = viewModel()
 
+    val name by viewModel.name.collectAsState()
+    val upiId by viewModel.upiId.collectAsState()
     val balance by viewModel.balance.collectAsState()
     val categories by viewModel.categories.collectAsState()
     val totalExpense by viewModel.totalExpense.collectAsState()
+
+    val currentBudget by viewModel.budget.collectAsState()
+    val budgetProgress by viewModel.budgetProgress.collectAsState()
+
+
+    val txVm: TransactionsViewModel = viewModel()
+    val recentTx by txVm.recentTransactions.collectAsState()
+
+    LaunchedEffect(Unit) {
+        txVm.loadTransactions()
+    }
+
+    // 🔹 Dynamic Month
+    val currentMonth = remember {
+        SimpleDateFormat("MMMM", Locale.getDefault())
+            .format(Date())
+    }
+
     var activeFab by remember { mutableStateOf(FabMenu.NONE) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.background)   // 🔥 theme adaptive
+            .background(Color.White)
     ) {
 
-        /* ---------- TOP BAR ---------- */
-
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .background(Color(0xFAFAFAFA))
         ) {
 
-            Image(
-                painter = painterResource(
-                    if (isDark) R.drawable.logo_white
-                    else R.drawable.logo_color
-                ),
-                contentDescription = null,
-                modifier = Modifier.size(48.dp) // smaller & clean
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-            Text(
-                text = "ONEY MITRA",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Lovelo,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.offset(y = (12).dp) // 🔥 Pull text closer
-            )
+                // ---------- HEADER ----------
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(230.dp)
+                        .background(
+                            brush = Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF000000),
+                                    Color(0xFF1A237E)
+                                )
+                            ),
+                            shape = RoundedCornerShape(
+                                bottomStart = 30.dp,
+                                bottomEnd = 30.dp
+                            )
+                        )
+                ) {
+
+                    Column(
+                        Modifier.padding(16.dp, 8.dp)
+                    ) {
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .padding(vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Image(
+                                    painter = painterResource(R.drawable.logo_white),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp)
+                                )
+
+                                Text(
+                                    text = "ONEY MITRA",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = Lovelo,
+                                    color = Color.White,
+                                    modifier = Modifier.offset(y = 12.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = "Welcome.!",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(
+                            text = toCamelCase(name),
+                            color = Color.White,
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
+                // ---------- BALANCE ----------
+                BalanceCard(
+                    balance = balance,
+                    categories = categories,
+                    totalExpense = totalExpense
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // ---------- BUDGET ----------
+                BudgetCard(
+                    month = currentMonth,
+                    budget = currentBudget,
+                    expense = totalExpense,
+                    progress = budgetProgress,
+                    onSetBudget = { newBudget ->
+                        viewModel.setBudget(newBudget)
+                    },
+                    onEditBudget = { newBudget ->
+                        viewModel.updateBudget(newBudget)
+                    }
+                )
+
+                // ---------- LENDING / BORROWING ----------
+                LendingBorrowingSection()
+
+                RecentTransactionsDashboard(
+                    transactions = recentTx,
+                    onViewAll = {
+                        onTransactionClick()   // navigates to TransactionsScreen
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                // ---------- QR ----------
+                QrSection(
+                    upiId = upiId
+                )
+
+                Spacer(Modifier.height(100.dp))
+            }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 120.dp, start = 16.dp, end = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-
-            BalanceCard(
-                balance = balance,
-                categories = categories,
-                totalExpense = totalExpense
-            )
-
-            LendingBorrowingSection()
-
-            QrSection(
-                upiId = "7815805576@axl" // later replace with user.uipiId
-            )
-
-            Spacer(Modifier.height(100.dp))
-        }
-        /* ---------- PROFILE ICON ---------- */
-
-        ProfileIcon(
-            onClick = onProfileClick,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding()
-                .padding(16.dp)
-                .size(42.dp)
-        )
-
-        /* ---------- ASSISTANT FAB ---------- */
-
+        // ---------- ASSISTANT FAB ----------
         AssistantFab(
             onClick = {
                 activeFab =
@@ -138,10 +229,7 @@ fun HomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(
-                    end = 16.dp,
-                    bottom = 96.dp
-                )
+                .padding(end = 16.dp, bottom = 96.dp)
                 .zIndex(10f)
         )
 
@@ -155,20 +243,18 @@ fun HomeScreen(
             )
         }
 
-        /* ---------- BOTTOM NAV ---------- */
-
+        // ---------- BOTTOM NAV ----------
         BottomNavBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding(),   // 🔥 safe area
+                .navigationBarsPadding(),
             onHomeClick = onHomeClick,
             onGridClick = onGridClick,
             onNotificationClick = onNotificationClick,
-            onTransactionClick = onTransactionClick
+            onProfileClick = onProfileClick
         )
 
-        /* ---------- CENTER ADD FAB ---------- */
-
+        // ---------- CENTER FAB ----------
         CenterAddFab(
             onClick = {
                 activeFab =
