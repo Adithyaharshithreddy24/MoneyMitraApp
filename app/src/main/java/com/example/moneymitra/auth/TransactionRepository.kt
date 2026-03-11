@@ -9,7 +9,7 @@ data class Transaction(
     val name:String = "",
     val amount: Double = 0.0,
     val type: String = "EXPENSE",
-    val accountLabel: String = "",// CREDIT / DEBIT
+    val accountLabel: String = "",
     val category: String = "",
     val customCategory: String? = null,
     val note: String = "",

@@ -25,15 +25,19 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun AddTransactionScreen(
     onBack: () -> Unit,
-    onSaved: () -> Unit
+    onSaved: () -> Unit,
+    scannedName: String? = null,
+    scannedAmount: String? = null,
+    scannedCategory: String? = null,
+    scannedNote: String? = null
 ) {
     val context = LocalContext.current
     val vm: AddTransactionViewModel = viewModel()
-    var paidto by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
+    var paidto by remember { mutableStateOf(scannedName ?: "") }
+    var amount by remember { mutableStateOf(scannedAmount ?: "") }
+    var category by remember { mutableStateOf(scannedCategory ?: "Food") }
+    var note by remember { mutableStateOf(scannedNote ?: "") }
     var type by remember { mutableStateOf("EXPENSE") }
-    var category by remember { mutableStateOf("Food") }
-    var note by remember { mutableStateOf("") }
 
     var accountId by remember { mutableStateOf("") }
     var accountLabel by remember { mutableStateOf("") }

@@ -1,5 +1,6 @@
 package com.example.moneymitra.ui.navigation
 
+import android.R.attr.defaultValue
 import android.app.Activity
 import android.content.Context
 import android.widget.Toast
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.moneymitra.R
 import com.example.moneymitra.auth.*
 import com.example.moneymitra.ui.screens.*
@@ -240,8 +242,8 @@ fun AppNavHost(activity: Activity) {
                 onHomeClick = {},
                 onGridClick = {},
                 onManual = {navController.navigate("addTransaction")},
-                onScan = {},
-                onUpload = {},
+                onScan = {navController.navigate("scanReceipt")},
+                onUpload = {navController.navigate("uploadReceipt") },
                 onNotificationClick = {},
                 onTransactionClick = {navController.navigate("transactions")},
                 onChitFunds = {},
@@ -273,14 +275,23 @@ fun AppNavHost(activity: Activity) {
         }
 
 
-        composable("addTransaction") {
+        composable(
+            route = "addTransaction?name={name}&amount={amount}&category={category}&note={note}",
+            arguments = listOf(
+                navArgument("name") { defaultValue = "" },
+                navArgument("amount") { defaultValue = "0" },
+                navArgument("category") { defaultValue = "Food" },
+                navArgument("note") { defaultValue = "" }
+            )
+        ) { backStackEntry ->
+
             AddTransactionScreen(
                 onBack = { navController.popBackStack() },
-                onSaved = {
-                    navController.navigate("home") {
-                        popUpTo("addTransaction") { inclusive = true }
-                    }
-                }
+                onSaved = { navController.popBackStack() },
+                scannedName = backStackEntry.arguments?.getString("name"),
+                scannedAmount = backStackEntry.arguments?.getString("amount"),
+                scannedCategory = backStackEntry.arguments?.getString("category"),
+                scannedNote = backStackEntry.arguments?.getString("note")
             )
         }
         composable("editTransaction/{txId}") { backStack ->
@@ -322,7 +333,12 @@ fun AppNavHost(activity: Activity) {
                 }
             }
         }
-
+        composable("scanReceipt") {
+            ScanReceiptScreen(navController)
+        }
+        composable("uploadReceipt") {
+            UploadReceiptScreen(navController)
+        }
 
     }
 
