@@ -6,8 +6,9 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- Camera feature declaration (removes warning) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Camera feature -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false"/>
@@ -23,11 +24,9 @@
         android:theme="@style/Theme.MoneyMitra"
         android:usesCleartextTraffic="true">
 
-        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MoneyMitra">
 
             <intent-filter>
@@ -37,7 +36,6 @@
 
         </activity>
 
-        <!-- File Provider for camera images -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -49,6 +47,18 @@
                 android:resource="@xml/file_paths"/>
 
         </provider>
+
+        <service
+            android:name=".services.NotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+
+        </service>
+
 
     </application>
 

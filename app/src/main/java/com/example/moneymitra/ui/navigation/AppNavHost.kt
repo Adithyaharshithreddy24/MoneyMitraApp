@@ -25,6 +25,7 @@ import com.example.moneymitra.auth.*
 import com.example.moneymitra.ui.screens.*
 import com.google.firebase.auth.FirebaseAuth
 import com.example.moneymitra.auth.InstallStateManager
+import com.example.moneymitra.data.model.Response
 import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
 
 @Composable
@@ -42,7 +43,7 @@ fun AppNavHost(activity: Activity) {
             FirebaseAuth.getInstance().signOut()
         }
     }
-
+    var selectedNotification by remember { mutableStateOf<Response?>(null) }
     val googleAuth = GoogleAuthManager(
         activity,
         activity.getString(R.string.default_web_client_id)
@@ -169,49 +170,58 @@ fun AppNavHost(activity: Activity) {
         /* ---------------- SIGNUP ---------------- */
         composable("signup") {
             SignupScreen(
+
                 onGoogleClick = {
                     googleLauncher.launch(
                         googleAuth.googleSignInClient.signInIntent
                     )
                 },
-                onSignupClick = { e, p, _ ->
 
-                    emailAuth.createUserWithEmail(
-                        e, p,
-                        onVerificationSent = {
+                onSignupClick = { email, password, _ ->
 
-                            val firebaseUser = FirebaseAuth.getInstance().currentUser
+                    FirebaseAuth.getInstance()
+                        .createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
 
-                            firebaseUser?.sendEmailVerification()
-                                ?.addOnSuccessListener {
+                            if (task.isSuccessful) {
 
-                                    Toast.makeText(
-                                        activity,
-                                        "Verification email sent. Please verify before logging in.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                val user = FirebaseAuth.getInstance().currentUser
 
-                                    // 🔥 Sign out until verified
-                                    FirebaseAuth.getInstance().signOut()
+                                user?.sendEmailVerification()
+                                    ?.addOnSuccessListener {
 
-                                    // 🔥 Navigate to Sign In
-                                    navController.navigate("login") {
-                                        popUpTo("signup") { inclusive = true }
+                                        Toast.makeText(
+                                            activity,
+                                            "Verification email sent. Please verify before logging in.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        FirebaseAuth.getInstance().signOut()
+
+                                        navController.navigate("login") {
+                                            popUpTo("signup") { inclusive = true }
+                                        }
                                     }
-                                }
-                                ?.addOnFailureListener {
-                                    Toast.makeText(
-                                        activity,
-                                        "Failed to send verification email",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                        },
-                        onError = {
-                            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
+                                    ?.addOnFailureListener {
+
+                                        Toast.makeText(
+                                            activity,
+                                            "Failed to send verification email",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                            } else {
+
+                                Toast.makeText(
+                                    activity,
+                                    task.exception?.message ?: "Signup failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    )
                 },
+
                 onSignInClick = {
                     navController.popBackStack()
                 }
@@ -244,7 +254,7 @@ fun AppNavHost(activity: Activity) {
                 onManual = {navController.navigate("addTransaction")},
                 onScan = {navController.navigate("scanReceipt")},
                 onUpload = {navController.navigate("uploadReceipt") },
-                onNotificationClick = {},
+                onNotificationClick = {navController.navigate("notifications")},
                 onTransactionClick = {navController.navigate("transactions")},
                 onChitFunds = {},
                 onGoals = {},
@@ -339,7 +349,29 @@ fun AppNavHost(activity: Activity) {
         composable("uploadReceipt") {
             UploadReceiptScreen(navController)
         }
+        composable("notifications") {
+            NotificationScreen(
+                onBack = { navController.popBackStack() },
+                onEdit = { notification ->
 
+                    selectedNotification = notification
+
+                    navController.navigate("editNotification")
+                }
+            )
+        }
+        composable("editNotification") {
+
+            selectedNotification?.let {
+
+                EditNotificationScreen(
+                    notification = it,
+                    onBack = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() }
+                )
+
+            }
+        }
     }
 
 }

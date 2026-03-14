@@ -1,52 +1,69 @@
+
 import google.generativeai as genai
 import pytesseract
 import cv2
-from PIL import Image
 import json
 import re
 import time
+import os
 
-# Gemini API key
-genai.configure(api_key="AIzaSyCGr85Sq54Dn3vLrEk7oVpgv1lRDqot0GI")
+
+# ---------------- API KEY ----------------
+
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY") or "AIzaSyDXpCf2I2Jh6t7IkEht472S_FRyCQKRRkE"
+)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 
+# ---------------- CLEAN JSON HELPER ----------------
+
+def extract_json(text):
+
+    try:
+        json_text = re.search(r"\{.*\}", text, re.DOTALL).group()
+        return json.loads(json_text)
+
+    except:
+        return None
+
+
+# ---------------- RECEIPT SCANNER ----------------
+
 def extract_receipt_data(image_path):
 
-    # ---------------- OCR TEXT EXTRACTION ----------------
     image = cv2.imread(image_path)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # increase contrast
-    gray = cv2.threshold(gray, 0, 255,
-                         cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    gray = cv2.threshold(
+        gray,
+        0,
+        255,
+        cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )[1]
 
     text = pytesseract.image_to_string(gray)
 
-    # ---------------- GEMINI ANALYSIS ----------------
     prompt = f"""
 You are an AI that extracts structured transaction data.
 
-Below is OCR text from a receipt:
+OCR text from receipt:
 
 {text}
 
-Extract these fields:
+Extract:
 
-1. Store name
-2. Final TOTAL amount paid
-3. Category
-4. Short note
+- Store name
+- Final TOTAL amount
+- Category
+- Short note
 
-Rules:
-- Amount must be the FINAL TOTAL
-- Ignore item prices
-- Category must be one of:
+Categories allowed:
 Food, Shopping, Transport, Medicine, Entertainment, Bills, Sport, Others
 
-Return ONLY JSON in this format:
+Return ONLY JSON:
 
 {{
 "name": "",
@@ -59,15 +76,10 @@ Return ONLY JSON in this format:
 
     response = model.generate_content(prompt)
 
-    result_text = response.text
+    data = extract_json(response.text)
 
-    try:
+    if not data:
 
-        json_text = re.search(r"\{.*\}", result_text, re.DOTALL).group()
-
-        data = json.loads(json_text)
-
-    except:
         data = {
             "name": "Receipt",
             "amount": 0,
@@ -76,12 +88,59 @@ Return ONLY JSON in this format:
             "note": ""
         }
 
-    # ---------------- CLEAN AMOUNT ----------------
+    # Clean amount
     amount = str(data.get("amount", "0"))
 
     numbers = re.findall(r"\d+\.?\d*", amount)
 
     data["amount"] = float(numbers[0]) if numbers else 0
+
+    data["createdAt"] = int(time.time() * 1000)
+
+    return data
+
+
+# ---------------- NOTIFICATION PARSER ----------------
+
+def analyze_notification(message):
+
+    prompt = f"""
+Detect if this message contains a financial transaction.
+
+Message:
+{message}
+
+Extract:
+
+- transaction type
+- amount
+- merchant
+- category
+
+Return JSON ONLY:
+
+{{
+"name": "",
+"amount": 0,
+"type": "CREDIT / DEBIT / NONE",
+"category": "",
+"note": ""
+}}
+"""
+
+    response = model.generate_content(prompt)
+
+    data = extract_json(response.text)
+
+    if not data:
+
+        return {
+            "name": "",
+            "amount": 0,
+            "type": "NONE",
+            "category": "",
+            "note": ""
+        }
 
     data["createdAt"] = int(time.time() * 1000)
 

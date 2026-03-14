@@ -41,6 +41,14 @@ import com.example.moneymitra.ui.theme.LightGradientEnd
 import com.example.moneymitra.ui.theme.LightGradientStart
 import com.example.moneymitra.ui.theme.DarkLinkBlue
 import java.security.KeyStore
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.material3.Switch
+import androidx.compose.ui.platform.LocalContext
+import com.example.moneymitra.utils.SettingsManager
+import androidx.core.app.NotificationManagerCompat
+import androidx.compose.runtime.LaunchedEffect
+import android.content.Context
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
@@ -330,8 +338,26 @@ fun SettingsCard(
     onHelpClick: () -> Unit
 ) {
 
-    val colors = MaterialTheme.colorScheme
+    val context = LocalContext.current
 
+    var autoRead by remember {
+        mutableStateOf(
+            SettingsManager.isAutoReadEnabled(context)
+        )
+    }
+
+
+    val colors = MaterialTheme.colorScheme
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+
+        val enabled = isNotificationAccessEnabled(context)
+
+        autoRead = enabled
+
+        SettingsManager.saveAutoRead(context, enabled)
+    }
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -341,13 +367,88 @@ fun SettingsCard(
             containerColor = colors.surface
         )
     ) {
+
         Column {
+
             SettingRow(Icons.Default.Person, "Edit profile information", onClick = onEditProfile)
+            SettingSwitchRow(
+                icon = Icons.Default.Notifications,
+                title = "Auto Read Notifications",
+                checked = autoRead,
+                onCheckedChange = {
+
+                    if (it) {
+
+                        val enabled = isNotificationAccessEnabled(context)
+
+                        if (enabled) {
+                            // Permission already granted
+                            autoRead = true
+                            SettingsManager.saveAutoRead(context, true)
+
+                        } else {
+                            // Permission not granted → ask user
+                            showPermissionDialog = true
+                        }
+
+                    } else {
+
+                        autoRead = false
+                        SettingsManager.saveAutoRead(context, false)
+                    }
+                }
+            )
             SettingRow(Icons.Default.Language, "Language", value = "English")
+
             SettingRow(Icons.Default.Lock, "Change password", onClick = onChangePassword)
+
             SettingRow(Icons.Default.Help, "Help & Support", onClick = onHelpClick)
+
             SettingRow(Icons.Default.Email, "Contact us")
+
             SettingRow(Icons.Default.Security, "Privacy policy")
+
+            if (showPermissionDialog) {
+
+                AlertDialog(
+                    onDismissRequest = { showPermissionDialog = false },
+
+                    title = {
+                        Text("Allow Notification Access")
+                    },
+
+                    text = {
+                        Text(
+                            "MoneyMitra needs access to notifications to automatically detect your bank transactions."
+                        )
+                    },
+
+                    confirmButton = {
+
+                        TextButton(onClick = {
+
+                            showPermissionDialog = false
+
+                            val intent =
+                                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+
+                            context.startActivity(intent)
+
+                        }) {
+                            Text("open settings")
+                        }
+                    },
+
+                    dismissButton = {
+
+                        TextButton(onClick = {
+                            showPermissionDialog = false
+                        }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -404,6 +505,44 @@ fun SettingRow(
         }
     }
 }
+@Composable
+fun SettingSwitchRow(
+    icon: ImageVector,
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+
+    val colors = MaterialTheme.colorScheme
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 0.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = colors.onBackground
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            color = colors.onSurface,
+            fontSize = 15.sp
+        )
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
 fun toCamelCase(text: String): String {
     return text
         .lowercase()
@@ -414,4 +553,12 @@ fun toCamelCase(text: String): String {
                 char.uppercase()
             }
         }
+}
+
+fun isNotificationAccessEnabled(context: Context): Boolean {
+
+    val enabledPackages =
+        NotificationManagerCompat.getEnabledListenerPackages(context)
+
+    return enabledPackages.contains(context.packageName)
 }

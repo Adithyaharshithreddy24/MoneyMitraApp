@@ -1,7 +1,7 @@
 package com.example.moneymitra.auth
 
 import com.example.moneymitra.data.api.RetrofitClient
-import com.example.moneymitra.data.model.ReceiptResponse
+import com.example.moneymitra.data.model.Response
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -9,7 +9,7 @@ import java.io.File
 
 class ScanRepository {
 
-    suspend fun scanReceipt(file: File): ReceiptResponse {
+    suspend fun scanReceipt(file: File): Response {
 
         val requestFile =
             file.asRequestBody("image/*".toMediaTypeOrNull())
@@ -21,6 +21,6 @@ class ScanRepository {
                 requestFile
             )
 
-        return RetrofitClient.api.scanReceipt(body)
+        return RetrofitClient.apiService.scanReceipt(body)
     }
 }

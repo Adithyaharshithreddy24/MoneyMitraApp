@@ -8,11 +8,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -81,7 +83,7 @@ fun AddRadialMenu(
 
         Box(
             modifier = Modifier
-                .padding(bottom = 60.dp)
+                .padding(bottom = 75.dp)
         ) {
 
             AddMenuItem(
@@ -158,28 +160,27 @@ fun AddMenuItem(
             color = colors.primary,
             shadowElevation = 8.dp
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = colors.onPrimary,
-                modifier = Modifier.padding(14.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = colors.onPrimary
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = label,
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
         }
 
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color.Gray.copy(alpha = 0.25f),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(5.dp,0.dp)
-        ) {
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
     }
 }

@@ -219,19 +219,22 @@ fun HomeScreen(
         }
 
         // ---------- ASSISTANT FAB ----------
-        AssistantFab(
-            onClick = {
-                activeFab =
-                    if (activeFab == FabMenu.ASSISTANT)
-                        FabMenu.NONE
-                    else
-                        FabMenu.ASSISTANT
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 96.dp)
-                .zIndex(10f)
-        )
+        if (activeFab != FabMenu.ASSISTANT )
+        {
+            AssistantFab(
+                onClick = {
+                    activeFab =
+                        if (activeFab == FabMenu.ASSISTANT)
+                            FabMenu.NONE
+                        else
+                            FabMenu.ASSISTANT
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 96.dp)
+                    .zIndex(10f)
+            )
+        }
 
         if (activeFab == FabMenu.ASSISTANT) {
             AssistantRadialMenu(

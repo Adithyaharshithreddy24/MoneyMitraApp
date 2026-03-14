@@ -16,94 +16,86 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavBar(
-    modifier: Modifier = Modifier,
+    selectedIndex: Int=0,
     onHomeClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val colors = MaterialTheme.colorScheme
+
     NavigationBar(
         modifier = modifier,
-        containerColor = Color( 0xFF11123C),
+        containerColor = Color.White
     ) {
 
         NavigationBarItem(
-            selected = false,
+            selected = selectedIndex == 0,
             onClick = onHomeClick,
             icon = {
                 Icon(
                     Icons.Default.Home,
-                    null,
-                    tint = Color.White
+                    contentDescription = "Home"
                 )
             },
-            label = {
-                Text(
-                    text = "Home",
-                    fontSize = 8.sp,
-                    color = Color.White
-                )
-            }
+            label = { Text("Home", fontSize = 8.sp) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF0B1A3A),
+                selectedTextColor = Color(0xFF0B1A3A),
+                unselectedIconColor = Color.Gray,
+                unselectedTextColor = Color.Gray,
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = selectedIndex == 1,
             onClick = onGridClick,
             icon = {
-                Icon(
-                    Icons.Default.GridView,
-                    null,
-                    tint = Color.White
-                )
+                Icon(Icons.Default.GridView, contentDescription = "Categories")
             },
-            label = {
-                Text(
-                    text = "Cetogeries",
-                    fontSize = 8.sp,
-                    color = Color.White
-                )
-            }
+            label = { Text("Categories", fontSize = 8.sp) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF0B1A3A),
+                selectedTextColor = Color(0xFF0B1A3A),
+                unselectedIconColor = Color.Gray,
+                unselectedTextColor = Color.Gray,
+                indicatorColor = Color.Transparent
+            )
         )
 
-        Spacer(modifier = Modifier.weight(1f)) // 🔥 space for + FAB
+        Spacer(modifier = Modifier.weight(1f))
 
         NavigationBarItem(
-            selected = false,
+            selected = selectedIndex == 2,
             onClick = onNotificationClick,
             icon = {
-                Icon(
-                    Icons.Default.Notifications,
-                    null,
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Notifications, contentDescription = "Notifications")
             },
-            label = {
-                Text(
-                    text = "Notifications",
-                    fontSize = 8.sp,
-                    color = Color.White
-                )
-            }
+            label = { Text("Notifications", fontSize = 8.sp) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF0B1A3A),
+                selectedTextColor = Color(0xFF0B1A3A),
+                unselectedIconColor = Color.Gray,
+                unselectedTextColor = Color.Gray,
+                indicatorColor = Color.Transparent
+            )
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = selectedIndex == 3,
             onClick = onProfileClick,
             icon = {
-                Icon(
-                    Icons.Default.Person,
-                    null,
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Person, contentDescription = "Profile")
             },
-            label = {
-                Text(
-                    text = "Profile",
-                    fontSize = 8.sp,
-                    color = Color.White
-                )
-            }
+            label = { Text("Profile", fontSize = 8.sp) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF0B1A3A),
+                selectedTextColor = Color(0xFF0B1A3A),
+                unselectedIconColor = Color.Gray,
+                unselectedTextColor = Color.Gray,
+                indicatorColor = Color.Transparent
+            )
         )
     }
 }
@@ -116,12 +108,13 @@ fun CenterAddFab(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier ,
-        containerColor = Color.White,
+        containerColor =Color(0xFF0B1A3A) ,
         shape = RoundedCornerShape(50.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "Add"
+            contentDescription = "Add",
+            tint = Color.White
         )
     }
 }

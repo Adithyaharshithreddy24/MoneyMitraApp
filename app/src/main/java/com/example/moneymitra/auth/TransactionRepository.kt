@@ -172,4 +172,16 @@ object TransactionRepository {
             onError(it.message ?: "Update failed")
         }
     }
+    fun deleteNotification(
+        uid: String,
+        notificationId: String
+    ) {
+
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+            .collection("notifications")
+            .document(notificationId)
+            .delete()
+    }
 }

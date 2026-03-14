@@ -130,7 +130,7 @@ fun BudgetCard(
 
                             Text(
                                 text = "Budget fully used",
-                                color = Color.Yellow,
+                                color = Color.Red,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )

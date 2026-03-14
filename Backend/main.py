@@ -1,16 +1,19 @@
 from fastapi import FastAPI, UploadFile, File
 import shutil
 import os
-from gemini_service import extract_receipt_data
+from gemini_service import extract_receipt_data, analyze_notification
 
 app = FastAPI()
 
+
+# -----------------------------
+# Receipt Scanner API
+# -----------------------------
 @app.post("/scan-receipt")
 async def scan_receipt(file: UploadFile = File(...)):
 
     path = f"temp_{file.filename}"
 
-    # Save temporary file
     with open(path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
@@ -18,7 +21,6 @@ async def scan_receipt(file: UploadFile = File(...)):
         data = extract_receipt_data(path)
 
     finally:
-        # Delete image after processing
         if os.path.exists(path):
             os.remove(path)
 
@@ -30,3 +32,16 @@ async def scan_receipt(file: UploadFile = File(...)):
         "type": "EXPENSE",
         "createdAt": data["createdAt"]
     }
+
+
+# -----------------------------
+# Notification Analyzer API
+# -----------------------------
+@app.post("/analyze-notification")
+async def analyze_notification_api(data: dict):
+
+    message = data["text"]
+
+    result = analyze_notification(message)
+
+    return result

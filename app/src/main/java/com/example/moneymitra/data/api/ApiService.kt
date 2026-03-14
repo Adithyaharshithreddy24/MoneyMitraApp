@@ -1,16 +1,26 @@
 package com.example.moneymitra.data.api
 
-import com.example.moneymitra.data.model.ReceiptResponse
+import com.example.moneymitra.data.model.Response
 import okhttp3.MultipartBody
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import retrofit2.http.*
+
+data class NotificationRequest(
+    val text: String
+)
 
 interface ApiService {
 
+    // Receipt scanner
     @Multipart
     @POST("scan-receipt")
     suspend fun scanReceipt(
         @Part file: MultipartBody.Part
-    ): ReceiptResponse
+    ): Response
+
+
+    // Notification analyzer
+    @POST("analyze-notification")
+    suspend fun analyzeNotification(
+        @Body request: NotificationRequest
+    ): Response
 }

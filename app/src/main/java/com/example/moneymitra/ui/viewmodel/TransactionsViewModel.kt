@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.moneymitra.auth.Transaction
 import com.example.moneymitra.auth.TransactionRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -76,6 +77,65 @@ class TransactionsViewModel : ViewModel() {
             txId = txId,
             onSuccess = onSuccess,
             onError = onError
+        )
+    }
+    fun saveFromNotification(
+        notificationId: String,
+        transaction: Transaction
+    ) {
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val db = FirebaseFirestore.getInstance()
+
+        // 🔹 If accountId is empty → fetch first account
+        if (transaction.accountId.isEmpty()) {
+
+            db.collection("users")
+                .document(uid)
+                .collection("accounts")
+                .limit(1)
+                .get()
+                .addOnSuccessListener { snapshot ->
+
+                    val doc = snapshot.documents.firstOrNull()
+
+                    val accountId = doc?.id ?: ""
+                    val accountLabel = doc?.getString("name") ?: "Account"
+
+                    val fixedTransaction = transaction.copy(
+                        accountId = accountId,
+                        accountLabel = accountLabel
+                    )
+
+                    addAndDelete(uid, notificationId, fixedTransaction)
+                }
+
+        } else {
+
+            addAndDelete(uid, notificationId, transaction)
+
+        }
+    }
+    private fun addAndDelete(
+        uid: String,
+        notificationId: String,
+        transaction: Transaction
+    ) {
+
+        TransactionRepository.addTransaction(
+            uid = uid,
+            tx = transaction,
+            onSuccess = {
+
+                TransactionRepository.deleteNotification(
+                    uid = uid,
+                    notificationId = notificationId
+                )
+
+                loadTransactions()
+            },
+            onError = {}
         )
     }
 

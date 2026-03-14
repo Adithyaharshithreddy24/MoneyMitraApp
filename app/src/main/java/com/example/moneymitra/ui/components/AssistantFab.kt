@@ -8,11 +8,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,7 +49,7 @@ fun AssistantFab(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = Color( 0xFF11123C),
+        containerColor = Color(0xFF11123C),
         contentColor = colors.onPrimary
     ) {
         Icon(
@@ -55,7 +58,6 @@ fun AssistantFab(
         )
     }
 }
-
 @Composable
 fun AssistantRadialMenu(
     expanded: Boolean,
@@ -64,113 +66,84 @@ fun AssistantRadialMenu(
     onGoals: () -> Unit,
     onLoans: () -> Unit
 ) {
+    val alpha by animateFloatAsState(
+        targetValue = if (expanded) 1f else 0f,
+        label = ""
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .alpha(alpha)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onDismiss() },
         contentAlignment = Alignment.BottomEnd
     ) {
-        Box(modifier = Modifier.padding(end = 18.dp, bottom = 104.dp)) {
 
-            AssistantMenuItem(
-                label = "Chit Funds",
-                icon = Icons.Default.AccountBalance,
-                angle = -140f,
-                visible = expanded,
-                onClick = onChitFunds
-            )
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
+            shadowElevation = 8.dp,
+            modifier = Modifier
+                .padding(end = 18.dp, bottom = 104.dp)
+        ) {
 
-            AssistantMenuItem(
-                label = "Goals",
-                icon = Icons.Default.Flag,
-                angle = -200f,
-                visible = expanded,
-                onClick = onGoals
-            )
+            Column(
+                modifier = Modifier.padding(vertical = 6.dp)
+            ) {
 
-            AssistantMenuItem(
-                label = "Loans",
-                icon = Icons.Default.AttachMoney,
-                angle = -70f,
-                visible = expanded,
-                onClick = onLoans
-            )
+                AssistantMenuItemRow(
+                    label = "Chit Funds",
+                    icon = Icons.Default.AccountBalance,
+                    onClick = onChitFunds
+                )
+
+                AssistantMenuItemRow(
+                    label = "Goals",
+                    icon = Icons.Default.Flag,
+                    onClick = onGoals
+                )
+
+                AssistantMenuItemRow(
+                    label = "Loans",
+                    icon = Icons.Default.AttachMoney,
+                    onClick = onLoans
+                )
+            }
         }
     }
 }
 
 @Composable
-fun AssistantMenuItem(
+fun AssistantMenuItemRow(
     label: String,
     icon: ImageVector,
-    angle: Float,
-    visible: Boolean,
-    radius: Dp = 74.dp, // slightly larger for better spacing
     onClick: () -> Unit
 ) {
-    val colors = MaterialTheme.colorScheme
 
-    val distance by animateDpAsState(
-        targetValue = if (visible) radius else 0.dp,
-        animationSpec = tween(400),
-        label = ""
-    )
-
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(300),
-        label = ""
-    )
-
-    val density = LocalDensity.current
-    val angleRad = Math.toRadians(angle.toDouble())
-
-    val offsetX = with(density) {
-        (distance.toPx() * cos(angleRad).toFloat()).toDp()
-    }
-
-    val offsetY = with(density) {
-        (distance.toPx() * sin(angleRad).toFloat()).toDp()
-    }
-
-    Column(
+    Row(
         modifier = Modifier
-            .offset(x = offsetX, y = offsetY)
-            .alpha(alpha)
-            .clickable { onClick() },
-        horizontalAlignment = Alignment.CenterHorizontally
+            .clickable { onClick() }
+            .fillMaxWidth(.45f)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Surface(
-            shape = CircleShape,
-            color = colors.primary,
-            shadowElevation = 8.dp
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = colors.onPrimary,
-                modifier = Modifier.padding(14.dp)
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = Color(0xFF11123C)
+        )
 
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color.Gray.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(5.dp,0.dp)
-        ) {
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black
+        )
     }
 }

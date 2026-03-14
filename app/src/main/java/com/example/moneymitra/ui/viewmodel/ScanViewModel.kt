@@ -2,7 +2,7 @@ package com.example.moneymitra.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.moneymitra.data.model.ReceiptResponse
+import com.example.moneymitra.data.model.Response
 import com.example.moneymitra.auth.ScanRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,8 +13,8 @@ class ScanViewModel : ViewModel() {
 
     private val repo = ScanRepository()
 
-    private val _receipt = MutableStateFlow<ReceiptResponse?>(null)
-    val receipt: StateFlow<ReceiptResponse?> = _receipt
+    private val _receipt = MutableStateFlow<Response?>(null)
+    val receipt: StateFlow<Response?> = _receipt
 
     fun scan(file: File) {
 
