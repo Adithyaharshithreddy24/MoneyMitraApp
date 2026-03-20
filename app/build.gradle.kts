@@ -51,6 +51,9 @@ dependencies {
 
     implementation("com.google.zxing:core:3.5.1")
 
+    implementation("com.patrykandpatrick.vico:compose:1.13.0")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.13.0")
+
     implementation("com.google.guava:guava:32.1.3-android")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")

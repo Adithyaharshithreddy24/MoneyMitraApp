@@ -3,6 +3,8 @@ package com.example.moneymitra.ui.theme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
+
+val Orange = Color(0xFFFF6B00)
 /* -------- LIGHT THEME COLORS -------- */
 
 val LightGradientStart = Color(0xFF000000)

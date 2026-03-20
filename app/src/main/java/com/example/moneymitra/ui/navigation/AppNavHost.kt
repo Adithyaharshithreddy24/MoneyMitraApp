@@ -25,6 +25,7 @@ import com.example.moneymitra.auth.*
 import com.example.moneymitra.ui.screens.*
 import com.google.firebase.auth.FirebaseAuth
 import com.example.moneymitra.auth.InstallStateManager
+import com.example.moneymitra.data.model.Loan
 import com.example.moneymitra.data.model.Response
 import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
 
@@ -78,7 +79,7 @@ fun AppNavHost(activity: Activity) {
         else
             "authCheck"
 
-
+    var selectedLoan by remember { mutableStateOf<Loan?>(null) }
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -250,7 +251,7 @@ fun AppNavHost(activity: Activity) {
                     navController.navigate("profile")
                 },
                 onHomeClick = {},
-                onGridClick = {},
+                onGridClick = {navController.navigate("statistics")},
                 onManual = {navController.navigate("addTransaction")},
                 onScan = {navController.navigate("scanReceipt")},
                 onUpload = {navController.navigate("uploadReceipt") },
@@ -258,7 +259,7 @@ fun AppNavHost(activity: Activity) {
                 onTransactionClick = {navController.navigate("transactions")},
                 onChitFunds = {},
                 onGoals = {},
-                onLoans = {}
+                onLoans = {navController.navigate("loans")}
             )
         }
 
@@ -371,6 +372,33 @@ fun AppNavHost(activity: Activity) {
                 )
 
             }
+        }
+        composable("statistics"){
+            StatsScreen()
+        }
+
+
+        composable("loans") {
+            LoansScreen(
+                onBack = { navController.popBackStack() },
+                onAddLoan = { navController.navigate("add_loan") },
+                onEditLoan = { loan ->
+                    selectedLoan = loan
+                    navController.navigate("edit_loan")
+                }
+            )
+        }
+
+        composable("edit_loan") {
+            selectedLoan?.let {
+                EditLoanScreen(
+                    loan = it,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable("add_loan") {
+            AddLoanScreen(navController)
         }
     }
 
