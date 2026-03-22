@@ -105,28 +105,28 @@ Return ONLY JSON:
 def analyze_notification(message):
 
     prompt = f"""
-Detect if this message contains a financial transaction.
+        Detect if this message contains a financial transaction.
 
-Message:
-{message}
+        Message:
+        {message}
 
-Extract:
+        Extract:
 
-- transaction type
-- amount
-- merchant
-- category
+        - transaction type
+        - amount
+        - merchant
+        - category
 
-Return JSON ONLY:
+        Return JSON ONLY:
 
-{{
-"name": "",
-"amount": 0,
-"type": "CREDIT / DEBIT / NONE",
-"category": "",
-"note": ""
-}}
-"""
+        {{
+        "name": "",
+        "amount": 0,
+        "type": "CREDIT / DEBIT / NONE",
+        "category": "",
+        "note": ""
+        }}
+    """
 
     response = model.generate_content(prompt)
 

@@ -6,6 +6,7 @@ data class Member(
     val email: String = "",
     val phone: String = "",
     val due: Int = 0,
+    val managerId: String ="",
     val payout: Boolean =false,
     val payoutmonth : Int = 0
 )

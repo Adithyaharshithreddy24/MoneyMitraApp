@@ -39,7 +39,7 @@ class ChitRepository {
                 val memberRef = chitDoc.collection("members").document()
                 val memberId = memberRef.id
 
-                memberRef.set(member.copy(id = memberId)).await()
+                memberRef.set(member.copy(id = memberId, managerId = uid)).await()
             }
 
             Result.success(Unit)

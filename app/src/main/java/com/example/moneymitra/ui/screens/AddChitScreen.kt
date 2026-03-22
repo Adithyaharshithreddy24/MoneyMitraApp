@@ -353,7 +353,7 @@ fun AddChitScreen(
 
                 Button(
                     onClick = {
-                        val m = Member("",memberName, memberEmail, memberPhone,0,false,0)
+                        val m = Member("",memberName, memberEmail, memberPhone,0,"",false,0)
                         if (editingIndex == null) members.add(m)
                         else members[editingIndex!!] = m
                         showSheet = false
