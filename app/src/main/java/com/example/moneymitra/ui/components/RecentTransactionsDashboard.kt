@@ -29,13 +29,13 @@ fun RecentTransactionsDashboard(
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y=(-15).dp)
+            .offset(y=(-35).dp)
             .padding(horizontal = 20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
+            defaultElevation = 10.dp
         )
     ) {
         Column(

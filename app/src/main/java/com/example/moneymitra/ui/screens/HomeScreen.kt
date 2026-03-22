@@ -199,9 +199,6 @@ fun HomeScreen(
                     }
                 )
 
-                // ---------- LENDING / BORROWING ----------
-                LendingBorrowingSection()
-
                 RecentTransactionsDashboard(
                     transactions = recentTx,
                     onViewAll = {

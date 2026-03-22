@@ -6,6 +6,13 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,6 +35,7 @@ import com.example.moneymitra.auth.InstallStateManager
 import com.example.moneymitra.data.model.Loan
 import com.example.moneymitra.data.model.Response
 import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
+import com.example.moneymitra.viewmodel.ChitViewModel
 
 @Composable
 fun AppNavHost(activity: Activity) {
@@ -88,7 +96,10 @@ fun AppNavHost(activity: Activity) {
         /* ======================================================
            AUTH CHECK
            ====================================================== */
-        composable("authCheck") {
+        composable("authCheck",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             val user = FirebaseAuth.getInstance().currentUser
 
             LaunchedEffect(Unit) {
@@ -117,7 +128,10 @@ fun AppNavHost(activity: Activity) {
         }
 
         /* ---------------- LOGIN ---------------- */
-        composable("login") {
+        composable("login",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             LoginScreen(
                 onSignInClick = { email, password ->
 
@@ -169,7 +183,10 @@ fun AppNavHost(activity: Activity) {
         }
 
         /* ---------------- SIGNUP ---------------- */
-        composable("signup") {
+        composable("signup",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             SignupScreen(
 
                 onGoogleClick = {
@@ -231,7 +248,10 @@ fun AppNavHost(activity: Activity) {
 
 
         /* ---------------- EDIT PROFILE ---------------- */
-        composable("editProfile") {
+        composable("editProfile",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             EditProfileScreen(
                 onBack = {
                     navController.popBackStack()
@@ -245,7 +265,10 @@ fun AppNavHost(activity: Activity) {
         }
 
         /* ---------------- HOME ---------------- */
-        composable("home") {
+        composable("home",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             HomeScreen(
                 onProfileClick = {
                     navController.navigate("profile")
@@ -257,14 +280,17 @@ fun AppNavHost(activity: Activity) {
                 onUpload = {navController.navigate("uploadReceipt") },
                 onNotificationClick = {navController.navigate("notifications")},
                 onTransactionClick = {navController.navigate("transactions")},
-                onChitFunds = {},
+                onChitFunds = { navController.navigate("chits") },
                 onGoals = {},
                 onLoans = {navController.navigate("loans")}
             )
         }
 
         /* ---------------- PROFILE ---------------- */
-        composable("profile") {
+        composable("profile",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             ProfileScreen(
                 onBack = { navController.popBackStack() },
                 onEditProfile = { navController.navigate("editProfile") },
@@ -278,7 +304,10 @@ fun AppNavHost(activity: Activity) {
                 }
             )
         }
-        composable("transactions") {
+        composable("transactions",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             TransactionsScreen(
                 onBack = { navController.popBackStack() },
                 onEdit = {tx->navController.navigate("editTransaction/${tx.id}")}
@@ -293,7 +322,10 @@ fun AppNavHost(activity: Activity) {
                 navArgument("amount") { defaultValue = "0" },
                 navArgument("category") { defaultValue = "Food" },
                 navArgument("note") { defaultValue = "" }
-            )
+            ),
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+
         ) { backStackEntry ->
 
             AddTransactionScreen(
@@ -305,7 +337,10 @@ fun AppNavHost(activity: Activity) {
                 scannedNote = backStackEntry.arguments?.getString("note")
             )
         }
-        composable("editTransaction/{txId}") { backStack ->
+        composable("editTransaction/{txId}",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) { backStack ->
             val txId = backStack.arguments?.getString("txId") ?: return@composable
             val vm: TransactionsViewModel = viewModel()
 
@@ -344,13 +379,26 @@ fun AppNavHost(activity: Activity) {
                 }
             }
         }
-        composable("scanReceipt") {
+        composable("scanReceipt",
+
+
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+
+
+        ) {
             ScanReceiptScreen(navController)
         }
-        composable("uploadReceipt") {
+        composable("uploadReceipt",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             UploadReceiptScreen(navController)
         }
-        composable("notifications") {
+        composable("notifications",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             NotificationScreen(
                 onBack = { navController.popBackStack() },
                 onEdit = { notification ->
@@ -361,7 +409,10 @@ fun AppNavHost(activity: Activity) {
                 }
             )
         }
-        composable("editNotification") {
+        composable("editNotification",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
 
             selectedNotification?.let {
 
@@ -373,12 +424,18 @@ fun AppNavHost(activity: Activity) {
 
             }
         }
-        composable("statistics"){
+        composable("statistics",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ){
             StatsScreen()
         }
 
 
-        composable("loans") {
+        composable("loans",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             LoansScreen(
                 onBack = { navController.popBackStack() },
                 onAddLoan = { navController.navigate("add_loan") },
@@ -389,7 +446,10 @@ fun AppNavHost(activity: Activity) {
             )
         }
 
-        composable("edit_loan") {
+        composable("edit_loan",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             selectedLoan?.let {
                 EditLoanScreen(
                     loan = it,
@@ -397,8 +457,54 @@ fun AppNavHost(activity: Activity) {
                 )
             }
         }
-        composable("add_loan") {
+        composable("add_loan",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
             AddLoanScreen(navController)
+        }
+        composable("chits",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) { ChitFundScreen(navController) }
+        composable("add_member_chit",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) { AddMemberChitScreen(navController) }
+        composable("add_chit",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) { AddChitScreen(navController) }
+
+        composable("chitDetail/{chitId}") { backStackEntry ->
+            val chitId = backStackEntry.arguments?.getString("chitId") ?: ""
+            ChitDetailScreen(navController, chitId)
+        }
+        composable("memberChitDetail/{chitId}") { backStack ->
+
+            val chitId = backStack.arguments?.getString("chitId") ?: ""
+            val viewModel: ChitViewModel = viewModel()
+
+            val chits by viewModel.chits.collectAsState()
+
+            // 🔥 IMPORTANT: load data
+            LaunchedEffect(Unit) {
+                viewModel.loadChits()
+            }
+
+            val chit = chits.find { it.id == chitId }
+
+            if (chit == null) {
+                // 🔥 SHOW LOADING INSTEAD OF BLANK
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                MemberChitDetailScreen(chit)
+            }
         }
     }
 

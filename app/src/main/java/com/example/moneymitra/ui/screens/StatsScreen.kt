@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.*
+import androidx.compose.material3.SearchBarDefaults.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.sp
 // THEME COLORS
 private val BackgroundColor = Color(0xFFF6F7F9)
 private val CardWhite = Color(0xFFFFFFFF)
-private val PrimaryOrange = Color(0xFFE26A2C)
+private val PrimaryOrange = Color(0xFF1A237E)
 private val TextDark = Color(0xFF111827)
 private val TextGray = Color(0xFF6B7280)
 
@@ -59,9 +60,8 @@ fun StatsScreen() {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        TopHeader()
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
 
         TitleSection()
 
@@ -93,7 +93,7 @@ fun StatsScreen() {
 
         LendingBorrowingCard()
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(50.dp))
     }
 }
 
@@ -140,7 +140,22 @@ fun TopHeader() {
 @Composable
 fun TitleSection() {
     Column {
-        Text("Statistics", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = TextDark)
+        Row()
+        {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = null,
+                Modifier.padding(0.dp,2.dp),
+                tint = Color.Black
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                "Statistics",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = TextDark
+            )
+        }
         Spacer(Modifier.height(4.dp))
         Text("Financial Insights", fontSize = 14.sp, color = TextGray)
     }

@@ -139,7 +139,7 @@ fun AddTransactionScreen(
                 options = listOf(
                     "Shopping", "Medicine", "Sport", "Food",
                     "Transport", "Entertainment", "Bills",
-                    "Income", "Others"
+                    "Income", "Others" ,"Chits"
                 ),
                 onSelected = { category = it }
             )
