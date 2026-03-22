@@ -5,3 +5,4 @@ pillow
 python-multipart
 pytesseract
 opencv-python
+resend

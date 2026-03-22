@@ -2,14 +2,19 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import List
-import smtplib
-from email.mime.text import MIMEText
 import shutil
 import os
+import resend
 
 from gemini_service import extract_receipt_data, analyze_notification
 
 app = FastAPI()
+
+# =============================
+# CONFIG
+# =============================
+
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 # =============================
 # MODELS
@@ -74,19 +79,14 @@ async def analyze_notification_api(data: dict):
     return result
 
 # =============================
-# SEND EMAIL REMINDER
+# SEND EMAIL 
 # =============================
 
 @app.post("/send-reminder")
 def send_reminder(data: RequestData):
 
-    # 🔐 USE ENV VARIABLES (IMPORTANT)
-    sender_email = os.getenv("EMAIL")
-    password = os.getenv("EMAIL_PASS")
-
     for m in data.members:
 
-        # ✅ USE YOUR LIVE RENDER URL
         upi_link = f"https://moneymitraapp.onrender.com/pay?pa={m.managerUpi}&pn={m.managerName}&am={m.amount}"
 
         html = f"""
@@ -104,14 +104,12 @@ def send_reminder(data: RequestData):
         <p>If button doesn't work, pay to: <b>{m.managerUpi}</b></p>
         """
 
-        msg = MIMEText(html, "html")
-        msg["Subject"] = "Chit Payment Reminder"
-        msg["From"] = sender_email
-        msg["To"] = m.email
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, m.email, msg.as_string())
+        resend.Emails.send({
+            "from": "MoneyMitra <onboarding@resend.dev>",
+            "to": [m.email],
+            "subject": "Chit Payment Reminder",
+            "html": html
+        })
 
     return {"success": True}
 
