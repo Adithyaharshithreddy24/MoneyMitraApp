@@ -5,4 +5,7 @@ pillow
 python-multipart
 pytesseract
 opencv-python
-resend
+google-api-python-client
+google-auth
+google-auth-oauthlib
+google-auth-httplib2

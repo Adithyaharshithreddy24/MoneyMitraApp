@@ -4,17 +4,16 @@ from pydantic import BaseModel
 from typing import List
 import shutil
 import os
-import resend
+import base64
+import json
+from email.mime.text import MIMEText
+
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
 
 from gemini_service import extract_receipt_data, analyze_notification
 
 app = FastAPI()
-
-# =============================
-# CONFIG
-# =============================
-
-resend.api_key = os.getenv("RESEND_API_KEY")
 
 # =============================
 # MODELS
@@ -72,18 +71,55 @@ async def scan_receipt(file: UploadFile = File(...)):
 
 @app.post("/analyze-notification")
 async def analyze_notification_api(data: dict):
-
     message = data["text"]
     result = analyze_notification(message)
-
     return result
 
 # =============================
-# SEND EMAIL 
+# EMAIL FUNCTION (ENV BASED)
+# =============================
+
+def send_email(to_email: str, subject: str, html: str):
+    try:
+        # 🔥 Load token from ENV
+        token_json = os.getenv("GOOGLE_TOKEN")
+
+        if not token_json:
+            raise Exception("GOOGLE_TOKEN missing in ENV")
+
+        creds_dict = json.loads(token_json)
+
+        creds = Credentials.from_authorized_user_info(creds_dict)
+
+        service = build('gmail', 'v1', credentials=creds)
+
+        message = MIMEText(html, "html")
+        message['to'] = to_email
+        message['subject'] = subject
+
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+
+        service.users().messages().send(
+            userId="me",
+            body={"raw": raw}
+        ).execute()
+
+        print(f"✅ Sent to {to_email}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Failed to send to {to_email}: {e}")
+        return False
+
+# =============================
+# SEND REMINDER
 # =============================
 
 @app.post("/send-reminder")
 def send_reminder(data: RequestData):
+
+    sent = []
+    failed = []
 
     for m in data.members:
 
@@ -104,20 +140,22 @@ def send_reminder(data: RequestData):
         <p>If button doesn't work, pay to: <b>{m.managerUpi}</b></p>
         """
 
-        resend.Emails.send({
-            "from": "MoneyMitra <onboarding@resend.dev>",
-            "to": [m.email],
-            "subject": "Chit Payment Reminder",
-            "html": html
-        })
+        if send_email(m.email, "Chit Payment Reminder", html):
+            sent.append(m.email)
+        else:
+            failed.append(m.email)
 
-    return {"success": True}
+    return {
+        "success": True,
+        "sent": sent,
+        "failed": failed
+    }
 
 # =============================
 # UPI REDIRECT
 # =============================
 
-@app.get("/pay")
+@app.api_route("/pay", methods=["GET", "HEAD"])
 def pay(pa: str, pn: str, am: int):
 
     upi_url = f"upi://pay?pa={pa}&pn={pn}&am={am}&cu=INR"

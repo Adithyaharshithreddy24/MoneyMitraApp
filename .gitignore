@@ -13,3 +13,27 @@
 .externalNativeBuild
 .cxx
 local.properties
+# 🔐 Secrets (VERY IMPORTANT)
+Backend/.env
+Backend/credentials.json
+Backend/token.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
