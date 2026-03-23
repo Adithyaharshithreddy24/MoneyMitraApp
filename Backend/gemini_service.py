@@ -155,12 +155,15 @@ def analyze_notification(message):
         - merchant
         - category
 
+        Categories allowed:
+        Food, Shopping, Transport, Medicine, Entertainment, Bills, Sport, Others
+
         Return JSON ONLY:
 
         {{
         "name": "",
         "amount": 0,
-        "type": "CREDIT / DEBIT / NONE",
+        "type": "INCOME / EXPENSE",
         "category": "",
         "note": ""
         }}

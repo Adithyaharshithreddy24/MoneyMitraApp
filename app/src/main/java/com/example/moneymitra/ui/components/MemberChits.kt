@@ -35,6 +35,10 @@ fun MemberChits(
     var showPay by remember { mutableStateOf(false) }
     var showEdit by remember { mutableStateOf(false) }
 
+    // 🔥 NEW: State to track which card is currently expanded
+    // Note: Assuming chit.id is a String. If it's an Int or Long, update the type accordingly.
+    var expandedChitId by remember { mutableStateOf<String?>(null) }
+
     val transactionVM: AddTransactionViewModel = viewModel()
 
     Box(Modifier.fillMaxSize()) {
@@ -44,6 +48,16 @@ fun MemberChits(
 
                 ChitMemberCard(
                     chit = chit,
+
+                    // Pass the state down to the card
+                    isExpanded = expandedChitId == chit.id,
+
+                    // Handle the click event to expand/collapse
+                    onClick = {
+                        // If clicking the already expanded card, close it (set to null)
+                        // Otherwise, expand this card by setting the state to its ID
+                        expandedChitId = if (expandedChitId == chit.id) null else chit.id
+                    },
 
                     onShowDetails = {
                         navController.navigate("memberChitDetail/${chit.id}")

@@ -1,39 +1,87 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-# 🔐 Secrets (VERY IMPORTANT)
+# -------------------------------
+# 🔐 Secrets 
+# -------------------------------
+
+.env
+.env.*
 Backend/.env
+Backend/.env.*
+*.env
+
+# API keys / credentials
+
 Backend/credentials.json
 Backend/token.json
+*.pem
+*.key
 
-# Python
-__pycache__/
+# -------------------------------
+# 🐍 Python
+# -------------------------------
+
+**pycache**/
 *.pyc
 *.pyo
 *.pyd
+*.sqlite3
 
-# Virtual environment
+# Virtual environments
+
 venv/
 .env/
+.venv/
+env/
 
-# macOS
-.DS_Store
+# -------------------------------
+# 📦 Build / cache
+# -------------------------------
 
-# Logs
+build/
+dist/
+*.egg-info/
+.cache/
+
+# -------------------------------
+# 🧪 Logs
+# -------------------------------
 *.log
+# -------------------------------
+# 💻 IDE / Editor
+# -------------------------------
 
-# IDE
 .vscode/
 .idea/
+*.iml
+
+# -------------------------------
+# 🍎 macOS
+# -------------------------------
+
+.DS_Store
+
+# -------------------------------
+# 🤖 Android / Gradle
+# -------------------------------
+
+.gradle
+/local.properties
+/captures
+.externalNativeBuild
+.cxx
+
+# Android Studio
+
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# -------------------------------
+# 🔥 Misc
+# -------------------------------
+
+*.swp
+*.swo
+*~

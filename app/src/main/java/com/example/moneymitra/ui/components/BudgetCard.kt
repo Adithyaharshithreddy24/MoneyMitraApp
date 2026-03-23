@@ -35,7 +35,6 @@ fun BudgetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp)
             .padding(horizontal = 20.dp)
             .clickable { expanded = !expanded }
             .shadow(
