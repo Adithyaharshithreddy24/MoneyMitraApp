@@ -6,12 +6,15 @@ import json
 import re
 import time
 import os
-
+from PIL import Image
+from dotenv import load_dotenv
+load_dotenv()
 
 # ---------------- API KEY ----------------
+print("API KEY:", os.getenv("GEMINI_API_KEY"))
 
 genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY") or "AIzaSyDXpCf2I2Jh6t7IkEht472S_FRyCQKRRkE"
+    api_key=os.getenv("GEMINI_API_KEY") 
 )
 
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -33,48 +36,83 @@ def extract_json(text):
 
 def extract_receipt_data(image_path):
 
-    image = cv2.imread(image_path)
+    # ---------------- image --> ocr --> text(ocr response) --> agentic ai --> return json{}  ----------------
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.imread(image_path)
 
-    gray = cv2.threshold(
-        gray,
-        0,
-        255,
-        cv2.THRESH_BINARY + cv2.THRESH_OTSU
-    )[1]
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    text = pytesseract.image_to_string(gray)
+    # gray = cv2.threshold(
+    #     gray,
+    #     0,
+    #     255,
+    #     cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    # )[1]
 
-    prompt = f"""
-You are an AI that extracts structured transaction data.
+    # text = pytesseract.image_to_string(gray)
 
-OCR text from receipt:
 
-{text}
+    # prompt = f"""
+    #         You are an AI that extracts structured transaction data.
 
-Extract:
+    #         OCR text from receipt:
 
-- Store name
-- Final TOTAL amount
-- Category
-- Short note
+    #         {text}
 
-Categories allowed:
-Food, Shopping, Transport, Medicine, Entertainment, Bills, Sport, Others
+    #         Extract:
 
-Return ONLY JSON:
+    #         - Store name
+    #         - Final TOTAL amount
+    #         - Category
+    #         - Short note
 
-{{
-"name": "",
-"amount": 0,
-"type": "EXPENSE",
-"category": "",
-"note": ""
-}}
-"""
+    #         Categories allowed:
+    #         Food, Shopping, Transport, Medicine, Entertainment, Bills, Sport, Others
 
-    response = model.generate_content(prompt)
+    #         Return ONLY JSON:
+
+    #         {{
+    #         "name": "",
+    #         "amount": 0,
+    #         "type": "EXPENSE",
+    #         "category": "",
+    #         "note": ""
+    #         }}
+    # """
+
+    #response = model.generate_content(prompt)
+    #--------------------------------------------------------------------------------
+
+    image = Image.open(image_path)   
+
+    prompt = """
+        You are an AI that extracts structured transaction data from receipts.
+
+        Rules:
+        - Extract FINAL TOTAL amount only
+        - Ignore GST/tax lines
+        - If multiple totals exist, pick payable amount
+
+        Extract:
+        - Store name
+        - Final TOTAL amount
+        - Category
+        - Short note
+
+        Categories allowed:
+        Food, Shopping, Transport, Medicine, Entertainment, Bills, Sport, Others
+
+        Return ONLY JSON:
+
+        {
+        "name": "",
+        "amount": 0,
+        "type": "EXPENSE",
+        "category": "",
+        "note": ""
+        }
+    """
+    response = model.generate_content([prompt, image])
 
     data = extract_json(response.text)
 
