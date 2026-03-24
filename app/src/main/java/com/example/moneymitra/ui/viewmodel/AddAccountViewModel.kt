@@ -1,7 +1,7 @@
 package com.example.moneymitra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.moneymitra.auth.AccountRepository
+import com.example.moneymitra.repository.AccountRepository
 import com.example.moneymitra.data.model.Account
 
 class AddAccountViewModel : ViewModel() {

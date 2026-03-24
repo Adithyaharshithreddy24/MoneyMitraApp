@@ -1,10 +1,7 @@
 package com.example.moneymitra.ui.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -12,10 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.moneymitra.auth.Transaction
+import com.example.moneymitra.repository.Transaction
 import com.example.moneymitra.data.model.Response
 import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
 import com.google.firebase.auth.FirebaseAuth

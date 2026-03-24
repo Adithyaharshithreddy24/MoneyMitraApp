@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import com.example.moneymitra.auth.Transaction
+import com.example.moneymitra.repository.Transaction
 import com.example.moneymitra.ui.screens.toCamelCase
 import java.text.SimpleDateFormat
 import java.util.*

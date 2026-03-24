@@ -1,18 +1,12 @@
 package com.example.moneymitra.ui.navigation
 
-import android.R.attr.defaultValue
 import android.app.Activity
-import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -34,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.moneymitra.auth.InstallStateManager
 import com.example.moneymitra.data.model.Loan
 import com.example.moneymitra.data.model.Response
+import com.example.moneymitra.repository.Transaction
+import com.example.moneymitra.repository.UserRepository
 import com.example.moneymitra.ui.viewmodel.TransactionsViewModel
 import com.example.moneymitra.viewmodel.ChitViewModel
 
@@ -428,7 +424,7 @@ fun AppNavHost(activity: Activity) {
             exitTransition = { fadeOut(animationSpec = tween(100)) },
             enterTransition = { fadeIn(animationSpec = tween(100)) }
         ){
-            StatsScreen()
+            StatsScreen(onBack = { navController.popBackStack() })
         }
 
 

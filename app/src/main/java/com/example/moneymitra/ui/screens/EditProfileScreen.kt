@@ -28,8 +28,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moneymitra.R
-import com.example.moneymitra.auth.ProfileRepository
-import com.example.moneymitra.auth.UserRepository
+import com.example.moneymitra.repository.ProfileRepository
+import com.example.moneymitra.repository.UserRepository
 import com.example.moneymitra.ui.components.DobPickerField
 import com.example.moneymitra.ui.components.GenderDropdownField
 import com.google.firebase.auth.FirebaseAuth

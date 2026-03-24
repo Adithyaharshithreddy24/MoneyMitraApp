@@ -52,9 +52,9 @@ fun BottomNavBar(
             selected = selectedIndex == 1,
             onClick = onGridClick,
             icon = {
-                Icon(Icons.Default.GridView, contentDescription = "Categories")
+                Icon(Icons.Default.BarChart, contentDescription = "Categories")
             },
-            label = { Text("Categories", fontSize = 8.sp) },
+            label = { Text("Statistics", fontSize = 8.sp) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color(0xFF0B1A3A),
                 selectedTextColor = Color(0xFF0B1A3A),

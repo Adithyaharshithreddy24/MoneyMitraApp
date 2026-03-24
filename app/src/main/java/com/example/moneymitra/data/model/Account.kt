@@ -1,6 +1,7 @@
 package com.example.moneymitra.data.model
 
 data class Account(
+    val id : String="",
     val accName: String = "",
     val accType: String = "",
     val accNo: String = "",

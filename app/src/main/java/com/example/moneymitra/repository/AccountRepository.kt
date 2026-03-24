@@ -1,4 +1,4 @@
-package com.example.moneymitra.auth
+package com.example.moneymitra.repository
 
 import com.example.moneymitra.data.model.Account
 import com.google.firebase.auth.FirebaseAuth

@@ -1,8 +1,8 @@
 package com.example.moneymitra.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.moneymitra.auth.Transaction
-import com.example.moneymitra.auth.TransactionRepository
+import com.example.moneymitra.repository.Transaction
+import com.example.moneymitra.repository.TransactionRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow

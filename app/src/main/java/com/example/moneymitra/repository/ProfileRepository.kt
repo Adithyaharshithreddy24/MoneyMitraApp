@@ -1,4 +1,4 @@
-package com.example.moneymitra.auth
+package com.example.moneymitra.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions

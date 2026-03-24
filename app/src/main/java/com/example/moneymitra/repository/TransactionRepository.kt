@@ -1,4 +1,4 @@
-package com.example.moneymitra.auth
+package com.example.moneymitra.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -88,7 +88,7 @@ object TransactionRepository {
             val balance = accSnap.getDouble("balance") ?: 0.0
 
             val updatedBalance =
-                if (tx.type == "CREDIT") balance + tx.amount
+                if (tx.type == "INCOME") balance + tx.amount
                 else balance - tx.amount
 
             tr.update(accRef, "balance", updatedBalance)
@@ -122,7 +122,7 @@ object TransactionRepository {
             val balance = accSnap.getDouble("balance") ?: 0.0
 
             val updatedBalance =
-                if (tx.type == "CREDIT") balance - tx.amount
+                if (tx.type == "INCOME") balance - tx.amount
                 else balance + tx.amount
 
             tr.update(accRef, "balance", updatedBalance)
@@ -157,11 +157,11 @@ object TransactionRepository {
             val balance = accSnap.getDouble("balance") ?: 0.0
 
             val rollback =
-                if (oldTx.type == "CREDIT") balance - oldTx.amount
+                if (oldTx.type == "INCOME") balance - oldTx.amount
                 else balance + oldTx.amount
 
             val finalBalance =
-                if (newTx.type == "CREDIT") rollback + newTx.amount
+                if (newTx.type == "INCOME") rollback + newTx.amount
                 else rollback - newTx.amount
 
             tr.update(accRef, "balance", finalBalance)

@@ -2,7 +2,7 @@ package com.example.moneymitra.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.moneymitra.auth.LoanRepository
+import com.example.moneymitra.repository.LoanRepository
 import com.example.moneymitra.data.model.Loan
 import com.example.moneymitra.utils.calculateEMI
 import com.example.moneymitra.utils.calculateNextDueDate

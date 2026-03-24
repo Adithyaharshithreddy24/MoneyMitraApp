@@ -2,7 +2,7 @@ package com.example.moneymitra.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.moneymitra.auth.ChitRepository
+import com.example.moneymitra.repository.ChitRepository
 import com.example.moneymitra.data.model.Chit
 import com.example.moneymitra.data.model.Member
 import com.example.moneymitra.ui.viewmodel.AddTransactionViewModel

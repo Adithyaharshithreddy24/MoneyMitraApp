@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
@@ -23,11 +22,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.moneymitra.auth.Transaction
-import com.example.moneymitra.ui.screens.toCamelCase
 import com.example.moneymitra.ui.viewmodel.ExpenseCategory
-import java.text.SimpleDateFormat
-import java.util.*
 
 // Standardized Theme Colors
 private val TextDark = Color(0xFF1E1E1E)

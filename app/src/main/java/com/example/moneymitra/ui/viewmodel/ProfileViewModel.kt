@@ -2,7 +2,7 @@ package com.example.moneymitra.ui.viewmodel
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
-import com.example.moneymitra.auth.AccountRepository
+import com.example.moneymitra.repository.AccountRepository
 import com.example.moneymitra.data.model.Account
 import com.example.moneymitra.data.model.User
 import com.google.firebase.auth.FirebaseAuth

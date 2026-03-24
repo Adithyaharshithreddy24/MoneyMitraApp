@@ -1,4 +1,4 @@
-package com.example.moneymitra.auth
+package com.example.moneymitra.repository
 
 import com.example.moneymitra.data.model.Chit
 import com.example.moneymitra.data.model.Member
@@ -167,4 +167,30 @@ class ChitRepository {
             .delete()
             .await()
     }
+
+    suspend fun getTotalChitDue(): Double {
+        val uid = auth.currentUser?.uid ?: return 0.0
+
+        val chitSnapshot = userChits(uid).get().await()
+
+        var totalDue = 0.0
+
+        for (chitDoc in chitSnapshot.documents) {
+
+            val membersSnapshot = userChits(uid)
+                .document(chitDoc.id)
+                .collection("members")
+                .get()
+                .await()
+
+            val chitDue = membersSnapshot.documents.sumOf { member ->
+                member.getDouble("due") ?: 0.0
+            }
+
+            totalDue += chitDue
+        }
+
+        return totalDue
+    }
+
 }
