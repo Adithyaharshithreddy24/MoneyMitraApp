@@ -277,7 +277,7 @@ fun AppNavHost(activity: Activity) {
                 onNotificationClick = {navController.navigate("notifications")},
                 onTransactionClick = {navController.navigate("transactions")},
                 onChitFunds = { navController.navigate("chits") },
-                onGoals = {},
+                onGoals = { navController.navigate("goals") },
                 onLoans = {navController.navigate("loans")}
             )
         }
@@ -438,7 +438,8 @@ fun AppNavHost(activity: Activity) {
                 onEditLoan = { loan ->
                     selectedLoan = loan
                     navController.navigate("edit_loan")
-                }
+                },
+                onPredictLoan={navController.navigate("prediction_selection")}
             )
         }
 
@@ -476,6 +477,50 @@ fun AppNavHost(activity: Activity) {
             val chitId = backStackEntry.arguments?.getString("chitId") ?: ""
             ChitDetailScreen(navController, chitId)
         }
+        composable("goals",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
+            GoalsScreen(navController = navController)
+        }
+
+        composable("add_goal",
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) }
+        ) {
+            AddGoalScreen(navController = navController)
+        }
+
+        composable("prediction_selection") {
+            PredictionSelectionScreen(
+                onBack = { navController.popBackStack() },
+
+                onPersonalLoanClick = {
+                    navController.navigate("personalLoanPrediction") {
+                        launchSingleTop = true
+                    }
+                },
+
+                onHomeLoanClick = {
+                    // TODO
+                },
+
+                onGoldLoanClick = {
+                    // TODO
+                },
+
+                onVehicleLoanClick = {
+                    // TODO
+                }
+            )
+        }
+
+        composable("personalLoanPrediction") {
+            PersonalLoanPredictionScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable("memberChitDetail/{chitId}") { backStack ->
 
             val chitId = backStack.arguments?.getString("chitId") ?: ""

@@ -1,5 +1,7 @@
 package com.example.moneymitra.data.api
 
+import com.example.moneymitra.data.model.LoanRequest
+import com.example.moneymitra.data.model.LoanResponse
 import com.example.moneymitra.data.model.Response
 import okhttp3.MultipartBody
 import retrofit2.Response as RetrofitResponse
@@ -39,4 +41,9 @@ interface ApiService {
     suspend fun sendReminder(
         @Body request: ReminderRequest
     ): RetrofitResponse<Unit>
+
+    @POST("personalloanprediction")
+    suspend fun predictPersonalLoan(
+        @Body request: LoanRequest
+    ): LoanResponse
 }

@@ -12,15 +12,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoGraph
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.moneymitra.data.model.Loan
+import com.example.moneymitra.ui.theme.LightGradientEnd
+import com.example.moneymitra.ui.theme.LightGradientStart
 import com.example.moneymitra.viewmodel.LoanViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,7 +34,8 @@ import java.util.*
 fun LoansScreen(
     onBack: () -> Unit,
     onAddLoan: () -> Unit,
-    onEditLoan: (Loan) -> Unit
+    onEditLoan: (Loan) -> Unit,
+    onPredictLoan: () -> Unit // 1. Added the new navigation callback here
 ) {
 
     val vm: LoanViewModel = viewModel()
@@ -63,42 +68,90 @@ fun LoansScreen(
         containerColor = colors.background
     ) { padding ->
 
-        if (list.isEmpty()) {
+        // 2. Wrapped the content in a Column to stack the button and the list
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+
+            // 3. The new Predict Loan Button
             Box(
                 modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No Loans Yet")
-            }
-        } else {
-
-            LazyColumn(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                items(list, key = { it.id }) { loan ->
-                    LoanExpandableCard(
-                        loan = loan,
-                        expanded = expandedId == loan.id,
-                        onClick = {
-                            expandedId =
-                                if (expandedId == loan.id) null else loan.id
-                        },
-                        onEditLoan={Loan->
-                            onEditLoan(Loan)
-                        },
-                        onDeleteLoan={
-                            loanId -> vm.deleteLoan(loanId)
-                        }
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            listOf(LightGradientStart, LightGradientEnd)
+                        ),
+                        shape = RoundedCornerShape(40.dp)
                     )
+
+            ) {
+                ElevatedButton(
+                    onClick = { onPredictLoan() },
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    elevation = ButtonDefaults.elevatedButtonElevation(0.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoGraph,
+                        contentDescription = "Predict Loan",
+                        tint = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "Loan Prediction",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
+                    )
+                }
+            }
+
+            // 4. Existing Empty State & LazyColumn logic
+            if (list.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Loans Yet")
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    items(list, key = { it.id }) { loan ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LoanExpandableCard(
+                            loan = loan,
+                            expanded = expandedId == loan.id,
+                            onClick = {
+                                expandedId =
+                                    if (expandedId == loan.id) null else loan.id
+                            },
+                            onEditLoan = { Loan ->
+                                onEditLoan(Loan)
+                            },
+                            onDeleteLoan = { loanId ->
+                                vm.deleteLoan(loanId)
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp)) // Added slight spacing between cards
+                    }
                 }
             }
         }
     }
 }
+
 @Composable
 fun LoanExpandableCard(
     loan: Loan,

@@ -72,8 +72,8 @@ class StatsRepository(
             }
         }
 
-        val monthlyIncome = totalIncome / monthsInFilter
-        val monthlyExpense = totalExpense / monthsInFilter
+        val monthlyIncome = totalIncome
+        val monthlyExpense = totalExpense
 
         // 6. Category Distribution
         val totalExpenseFloat = totalExpense.toFloat().takeIf { it > 0 } ?: 1f

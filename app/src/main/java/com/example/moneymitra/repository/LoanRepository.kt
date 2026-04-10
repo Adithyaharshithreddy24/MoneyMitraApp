@@ -1,6 +1,9 @@
 package com.example.moneymitra.repository
 
+import com.example.moneymitra.data.api.RetrofitClient
 import com.example.moneymitra.data.model.Loan
+import com.example.moneymitra.data.model.LoanRequest
+import com.example.moneymitra.data.model.LoanResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -61,5 +64,13 @@ class LoanRepository {
             .document(loanId)
             .delete()
             .await()
+    }
+    suspend fun personalloanprediction(request: LoanRequest): Result<LoanResponse> {
+        return try {
+            val response = RetrofitClient.apiService.predictPersonalLoan(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

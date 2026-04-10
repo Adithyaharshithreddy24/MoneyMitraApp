@@ -14,6 +14,10 @@ from google.oauth2.credentials import Credentials
 from gemini_service import extract_receipt_data, analyze_notification
 
 app = FastAPI()
+from loan_model import router as loan_router
+
+# 🔥 INCLUDE LOAN ROUTES
+app.include_router(loan_router)
 
 # =============================
 # MODELS
