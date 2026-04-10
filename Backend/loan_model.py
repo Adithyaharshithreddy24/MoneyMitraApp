@@ -108,7 +108,7 @@ class PersonalLoanApprovalSystem:
         self.model = xgb.XGBClassifier(eval_metric='logloss', scale_pos_weight=weight)
         self.model.fit(X_train, y_train)
 
-        self.calibrated_model = CalibratedClassifierCV(self.model, method='sigmoid', cv='prefit')
+        self.calibrated_model = CalibratedClassifierCV(self.model, method='sigmoid', cv=5)
         self.calibrated_model.fit(X_test, y_test)
 
         self.explainer = shap.TreeExplainer(self.model)
