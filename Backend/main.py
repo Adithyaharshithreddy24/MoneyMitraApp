@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import List
@@ -7,6 +7,7 @@ import os
 import base64
 import json
 from email.mime.text import MIMEText
+from fastapi.responses import JSONResponse
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -154,6 +155,212 @@ def send_reminder(data: RequestData):
         "sent": sent,
         "failed": failed
     }
+
+# ==============================
+# PERSONAL LOAN APPROVAL SYSTEM
+# ==============================
+
+def calculate_home_loan(property_value, cibil_score, monthly_income):
+
+    if property_value <= 3000000:
+        ltv = 0.9
+    elif property_value <= 7500000:
+        ltv = 0.8
+    else:
+        ltv = 0.75
+
+    loan_by_ltv = property_value * ltv
+
+    max_emi = monthly_income * 0.45
+
+    tenure_years = 20
+    tenure_months = tenure_years * 12
+
+    if cibil_score >= 750:
+        annual_rate = 8.5
+        status = "High Approval ✅"
+    elif cibil_score >= 650:
+        annual_rate = 9.5
+        status = "Moderate Approval ⚠️"
+    else:
+        annual_rate = 11
+        status = "Low Approval ❌"
+
+    monthly_rate = annual_rate / 12 / 100
+
+    loan_by_income = max_emi * ((1 + monthly_rate)**tenure_months - 1) / \
+                     (monthly_rate * (1 + monthly_rate)**tenure_months)
+
+    loan = min(loan_by_ltv, loan_by_income)
+
+    emi = loan * monthly_rate * (1 + monthly_rate)**tenure_months / \
+          ((1 + monthly_rate)**tenure_months - 1)
+
+    total_payment = emi * tenure_months
+    total_interest = total_payment - loan
+
+    return {
+        "property_value": property_value,
+        "loan_by_ltv": round(loan_by_ltv, 2),
+        "loan_by_income": round(loan_by_income, 2),
+        "eligible_loan": round(loan, 2),
+        "interest_rate": f"{annual_rate}%",
+        "tenure_years": tenure_years,
+        "emi_per_month": round(emi, 2),
+        "total_interest": round(total_interest, 2),
+        "total_payment": round(total_payment, 2),
+        "approval_status": status
+    }
+
+@app.post("/calculatehomeloan")
+def calculate(
+    propertyvalue: float = Form(...),
+    monthlyincome: float = Form(...),
+    cibil: int = Form(...)
+):
+    return JSONResponse(
+        calculate_home_loan(propertyvalue, cibil, monthlyincome)
+    )
+
+
+import requests
+
+# =============================
+# GOLD LOAN CALCULATOR
+# =============================
+
+def get_gold_price_inr():
+    try:
+        gold = requests.get("https://api.gold-api.com/price/XAU", timeout=5).json()
+        usd_price = gold['price']
+
+        currency = requests.get("https://api.exchangerate-api.com/v4/latest/USD", timeout=5).json()
+        rate = currency['rates']['INR']
+
+        inr_per_gram = (usd_price * rate) / 31.1035
+        return inr_per_gram
+
+    except:
+        return None
+
+
+@app.post("/calculategoldloan")
+def calculate_gold(weight: float = Form(...)):
+    try:
+        price_per_gram = get_gold_price_inr()
+
+        if price_per_gram is None:
+            return JSONResponse({"error": "API failed"}, status_code=500)
+
+        # ✅ Constants
+        tenure_months = 12
+        interest_rate = 10.0   # fixed %
+
+        # ✅ Gold valuation
+        gold_value = weight * price_per_gram
+
+        # ✅ RBI LTV (75%)
+        loan_amount = gold_value * 0.75
+
+        # ✅ EMI Calculation
+        monthly_rate = interest_rate / 12 / 100
+
+        emi = loan_amount * monthly_rate * (1 + monthly_rate)**tenure_months / \
+              ((1 + monthly_rate)**tenure_months - 1)
+
+        total_payment = emi * tenure_months
+        total_interest = total_payment - loan_amount
+
+        return {
+            "weight": weight,
+            "price_per_gram": round(price_per_gram, 2),
+            "gold_value": round(gold_value, 2),
+            "loan_amount": round(loan_amount, 2),
+
+            # 🔥 Fixed values
+            "interest_rate": f"{interest_rate}%",
+            "tenure_months": tenure_months,
+
+            "emi": round(emi, 2),
+            "total_interest": round(total_interest, 2),
+            "total_payment": round(total_payment, 2)
+        }
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+    
+# =============================
+# VEHICLE LOAN CALCULATOR
+# =============================
+
+def calculate_vehicle_loan(vehicle_price, cibil_score, monthly_income, vehicle_type):
+
+    # ✅ LTV & Tenure
+    if vehicle_type == "new":
+        ltv = 0.9
+        tenure_years = 5
+    else:
+        ltv = 0.75
+        tenure_years = 3
+
+    loan_by_ltv = vehicle_price * ltv
+
+    # ✅ Income eligibility
+    max_emi = monthly_income * 0.4
+    tenure_months = tenure_years * 12
+
+    # ✅ Interest based on CIBIL
+    if cibil_score >= 750:
+        annual_rate = 9
+        status = "High Approval ✅"
+    elif cibil_score >= 650:
+        annual_rate = 11
+        status = "Moderate Approval ⚠️"
+    else:
+        annual_rate = 13
+        status = "Low Approval ❌"
+
+    monthly_rate = annual_rate / 12 / 100
+
+    # ✅ Loan eligibility based on income
+    loan_by_income = max_emi * ((1 + monthly_rate)**tenure_months - 1) / \
+                     (monthly_rate * (1 + monthly_rate)**tenure_months)
+
+    # ✅ Final eligible loan
+    loan = min(loan_by_ltv, loan_by_income)
+
+    # ✅ EMI Calculation
+    emi = loan * monthly_rate * (1 + monthly_rate)**tenure_months / \
+          ((1 + monthly_rate)**tenure_months - 1)
+
+    # ✅ Totals
+    total_payment = emi * tenure_months
+    total_interest = total_payment - loan
+
+    return {
+        "vehicle_price": vehicle_price,
+        "vehicle_type": vehicle_type,
+        "loan_by_ltv": round(loan_by_ltv, 2),
+        "loan_by_income": round(loan_by_income, 2),
+        "eligible_loan": round(loan, 2),
+        "interest_rate": f"{annual_rate}%",
+        "tenure_years": tenure_years,
+        "emi_per_month": round(emi, 2),
+        "total_interest": round(total_interest, 2),
+        "total_payment": round(total_payment, 2),
+        "approval_status": status
+    }
+
+@app.post("/calculatevehicleloan")
+def calculate_vehicle(
+    price: float = Form(...),
+    income: float = Form(...),
+    cibil: int = Form(...),
+    vehicle_type: str = Form(...)
+):
+    return JSONResponse(
+        calculate_vehicle_loan(price, cibil, income, vehicle_type)
+    )
 
 # =============================
 # UPI REDIRECT

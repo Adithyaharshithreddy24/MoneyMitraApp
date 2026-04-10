@@ -1,14 +1,18 @@
 package com.example.moneymitra.ui.components
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.moneymitra.data.model.Goal
 
@@ -19,81 +23,144 @@ fun GoalCard(
     onDelete: () -> Unit,
     onUpdate: (Goal) -> Unit
 ) {
-
     var expanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    val colors = MaterialTheme.colorScheme
 
     val progress = if (goal.targetAmount == 0.0) 0f
     else (goal.savedAmount / goal.targetAmount).toFloat()
 
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable { expanded = !expanded }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(goal.title, style = MaterialTheme.typography.titleMedium)
+        /* MAIN ROW */
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text("₹${goal.savedAmount} / ₹${goal.targetAmount}")
-
-            Text("Priority: ${goal.priority}")
-
-            if (goal.isCompleted) {
-                Text("✅ Completed")
+            /* ICON BOX */
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(colors.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = goal.title.take(1).uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.onSurfaceVariant
+                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.width(14.dp))
 
-            LinearProgressIndicator(progress = progress)
+            /* CENTER TEXT */
+            Column(modifier = Modifier.weight(1f)) {
 
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+                Text(
+                    text = "Priority: ${goal.priority}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+
+                Text(
+                    text = goal.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                if (goal.isCompleted) {
+                    Text(
+                        text = "✅ Completed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF388E3C) // Success Green
+                    )
+                }
+            }
+
+            /* TRAILING TEXT (AMOUNTS) */
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "₹${"%.0f".format(goal.savedAmount)}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = "of ₹${"%.0f".format(goal.targetAmount)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        /* PROGRESS BAR (Always visible) */
+        LinearProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+            color = colors.primary,
+            trackColor = colors.surfaceVariant
+        )
+
+        /* EXPANDED DETAILS */
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                Column {
+                Button(
+                    onClick = { onAddMoney(500.0) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add ₹500 to Goal")
+                }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(
-                        onClick = { onAddMoney(500.0) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add ₹500")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { showDialog = true }) {
+                        Text("Edit", color = Color(0xFF388E3C)) // Green
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-
-                        OutlinedButton(onClick = { showDialog = true }) {
-                            Icon(Icons.Default.Edit, null)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Edit")
-                        }
-
-                        OutlinedButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, null)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Delete")
-                        }
+                    TextButton(onClick = onDelete) {
+                        Text("Delete", color = Color.Red) // Red
                     }
                 }
             }
         }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 16.dp),
+            color = colors.outlineVariant
+        )
     }
 
-    // ✏️ EDIT DIALOG (FIXED STATE)
+    // ✏️ EDIT DIALOG
     if (showDialog) {
-
         var newTitle by remember { mutableStateOf(goal.title) }
         var newTarget by remember { mutableStateOf(goal.targetAmount.toString()) }
 
@@ -112,26 +179,29 @@ fun GoalCard(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showDialog = false }) {
+                TextButton(onClick = { showDialog = false }) {
                     Text("Cancel")
                 }
             },
             title = { Text("Edit Goal") },
             text = {
                 Column {
-
                     OutlinedTextField(
                         value = newTitle,
                         onValueChange = { newTitle = it },
-                        label = { Text("Title") }
+                        label = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = newTarget,
                         onValueChange = { newTarget = it },
-                        label = { Text("Target Amount") }
+                        label = { Text("Target Amount") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             }

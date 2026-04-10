@@ -481,7 +481,10 @@ fun AppNavHost(activity: Activity) {
             exitTransition = { fadeOut(animationSpec = tween(100)) },
             enterTransition = { fadeIn(animationSpec = tween(100)) }
         ) {
-            GoalsScreen(navController = navController)
+            GoalsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController
+            )
         }
 
         composable("add_goal",
@@ -502,21 +505,42 @@ fun AppNavHost(activity: Activity) {
                 },
 
                 onHomeLoanClick = {
-                    // TODO
+                    navController.navigate("homeloan") {
+                        launchSingleTop = true
+                    }
                 },
 
                 onGoldLoanClick = {
-                    // TODO
+                    navController.navigate("goldloan") {
+                        launchSingleTop = true
+                    }
                 },
 
                 onVehicleLoanClick = {
-                    // TODO
+                    navController.navigate("vehicleLoan") {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
         composable("personalLoanPrediction") {
             PersonalLoanPredictionScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("homeLoan") {
+            HomeLoanScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("goldLoan") {
+            GoldLoanScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("vehicleLoan") {
+            VehicleLoanScreen(
                 onBack = { navController.popBackStack() }
             )
         }
