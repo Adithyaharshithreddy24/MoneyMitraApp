@@ -84,23 +84,54 @@ async def analyze_notification_api(data: dict):
 # EMAIL FUNCTION (ENV BASED)
 # =============================
 
-def send_email(to_email: str, subject: str, html: str):
+import os
+import json
+import base64
+from email.mime.text import MIMEText
+
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+
+
+def get_gmail_service():
     try:
         # 🔥 Load token from ENV
         token_json = os.getenv("GOOGLE_TOKEN")
 
         if not token_json:
-            raise Exception("GOOGLE_TOKEN missing in ENV")
+            raise Exception("GOOGLE_TOKEN missing in environment")
 
         creds_dict = json.loads(token_json)
 
         creds = Credentials.from_authorized_user_info(creds_dict)
 
-        service = build('gmail', 'v1', credentials=creds)
+        # ✅ Auto refresh token (VERY IMPORTANT)
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        # ❌ If still invalid
+        if not creds.valid:
+            raise Exception("Invalid credentials even after refresh")
+
+        service = build("gmail", "v1", credentials=creds)
+        return service
+
+    except Exception as e:
+        print(f"❌ Gmail Service Error: {e}")
+        return None
+
+
+def send_email(to_email: str, subject: str, html: str):
+    try:
+        service = get_gmail_service()
+
+        if not service:
+            return False
 
         message = MIMEText(html, "html")
-        message['to'] = to_email
-        message['subject'] = subject
+        message["to"] = to_email
+        message["subject"] = subject
 
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
@@ -115,6 +146,7 @@ def send_email(to_email: str, subject: str, html: str):
     except Exception as e:
         print(f"❌ Failed to send to {to_email}: {e}")
         return False
+
 
 # =============================
 # SEND REMINDER

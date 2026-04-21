@@ -132,7 +132,7 @@ fun NotificationScreen(
                                     name = tx.name,
                                     amount = tx.amount,
                                     category = tx.category,
-                                    type = if (tx.type == "DEBIT") "EXPENSE" else "INCOME",
+                                    type = if (tx.type == "DEBIT"||tx.type == "EXPENSE") "EXPENSE" else "INCOME",
                                     note = tx.note,
                                     createdAt = tx.createdAt
                                 )
@@ -212,7 +212,7 @@ fun NotificationExpandableCard(
             ) {
                 Icon(
                     imageVector =
-                        if (tx.type == "DEBIT")
+                        if (tx.type == "EXPENSE")
                             Icons.Default.CallMade
                         else
                             Icons.Default.CallReceived,

@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.92.4.96:8000/"
+    private const val BASE_URL = "https://moneymitraapp.onrender.com/"
 
     val apiService: ApiService by lazy {
 
